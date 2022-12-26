@@ -37,9 +37,11 @@ RTOS_MUTEX_HANDLE mixerMutex;
 
 void stackPaint()
 {
+#if !defined(PCB_ARDUINO)
   menusStack.paint();
   mixerStack.paint();
   audioStack.paint();
+#endif
 #if defined(CLI) && !defined(SIMU)
   cliStack.paint();
 #endif

@@ -57,7 +57,7 @@ CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 
 #define LS_LAST_VALUE(fm, idx) lswFm[fm].lsw[idx].lastValue
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
+#if defined(PCB_ARDUINO) || defined(PCBFRSKY) || defined(PCBFLYSKY)
 #if defined(PCBX9E)
 tmr10ms_t switchesMidposStart[16];
 #else
@@ -571,7 +571,7 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
   }
 #endif
   else if (cs_idx <= (SWSRC_LAST_SWITCH - 3 * NUM_FUNCTIONS_SWITCHES)) {
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
+#if defined(PCB_ARDUINO) || defined(PCBFRSKY) || defined(PCBFLYSKY)
     if (flags & GETSWITCH_MIDPOS_DELAY)
       result = SWITCH_POSITION(cs_idx-SWSRC_FIRST_SWITCH);
     else
@@ -679,6 +679,7 @@ swsrc_t getMovedSwitch()
   }
 #endif
 
+#if NUM_XPOTS > 0
   // Multipos
   for (int i = 0; i < NUM_XPOTS; i++) {
     if (IS_POT_MULTIPOS(POT1 + i)) {
@@ -692,7 +693,7 @@ swsrc_t getMovedSwitch()
       }
     }
   }
-
+#endif
   if ((tmr10ms_t)(get_tmr10ms() - s_move_last_time) > 100)
     result = 0;
 

@@ -35,7 +35,7 @@ void menuCommonCalib(event_t event)
       if (IS_POT_WITHOUT_DETENT(i)) {
         reusableBuffer.calib.midVals[i] = (reusableBuffer.calib.hiVals[i] + reusableBuffer.calib.loVals[i]) / 2;
       }
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
       uint8_t idx = i - POT1;
       int count = reusableBuffer.calib.xpotsCalib[idx].stepsCount;
       if (IS_POT_MULTIPOS(i) && count <= XPOTS_MULTIPOS_COUNT) {
@@ -98,7 +98,7 @@ void menuCommonCalib(event_t event)
       for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
         reusableBuffer.calib.loVals[i] = 15000;
         reusableBuffer.calib.hiVals[i] = -15000;
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
         reusableBuffer.calib.midVals[i] = getAnalogValue(i) >> 1;
         if (i<NUM_XPOTS) {
           reusableBuffer.calib.xpotsCalib[i].stepsCount = 0;
@@ -126,7 +126,7 @@ void menuCommonCalib(event_t event)
       break;
 
     case CALIB_STORE:
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
       for (uint8_t i=POT1; i<=POT_LAST; i++) {
         int idx = i - POT1;
         int count = reusableBuffer.calib.xpotsCalib[idx].stepsCount;

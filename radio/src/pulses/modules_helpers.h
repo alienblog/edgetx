@@ -712,7 +712,7 @@ inline bool isBindCh9To16Allowed(uint8_t moduleIndex)
   }
 }
 
-#if defined(PCBTARANIS) || defined(PCBHORUS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS) || defined(PCBHORUS)
 inline bool isSportLineUsedByInternalModule()
 {
   return g_model.moduleData[INTERNAL_MODULE].type == MODULE_TYPE_XJT_PXX1;

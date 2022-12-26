@@ -1,0 +1,300 @@
+option(SHUTDOWN_CONFIRMATION "Shutdown confirmation" OFF)
+option(LCD_DUAL_BUFFER "Dual LCD Buffer" OFF)
+option(AFHDS3 "AFHDS3 TX Module" OFF)
+option(GHOST "Ghost TX Module" OFF)
+option(INTERNAL_MODULE_PPM "Support for PPM internal module" OFF)
+option(AUTOUPDATE "Auto update internal chips from SD" OFF)
+option(BIND_KEY "Enable bind button" OFF)
+
+set(EXTERNAL_MODULE YES)
+add_definitions(-DHARDWARE_TRIMS)
+
+set(PWR_BUTTON "SWITCH" CACHE STRING "Pwr button type (PRESS/SWITCH)")
+set(HAPTIC YES)
+set(GUI_DIR 128x64)
+set(BITMAPS_DIR ${GUI_DIR})
+set(BITMAPS_TARGET 9x_bitmaps)
+set(FONTS_TARGET 9x_fonts_1bit)
+set(LCD_DRIVER lcd_driver_spi.cpp)
+set(GVAR_SCREEN model_gvars.cpp)
+set(STATUS_LEDS YES)
+add_definitions(-DREQUIRED_SDCARD_VERSION="${SDCARD_VERSION}" -DHAPTIC -DCROSSFIRE -DBOLD_FONT) # TODO-feather
+add_definitions(-DLUA_INPUTS -DTIMERS -DSOFTWARE_VOLUME) # TODO-feather
+add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
+option(INTERNAL_MODULE_MULTI "Support for MULTI internal module" ON)
+option(INTERNAL_MODULE_ELRS "Support for ELRS internal module" OFF)
+set(FLAVOUR feather)
+set(NAVIGATION_TYPE 9x)
+set(CPU_TYPE ARDUINO)
+set(LINKER_SCRIPT targets/adafruit/ldscript.ld)
+set(FIRMWARE_TARGET_SRC
+  ${FIRMWARE_TARGET_SRC}
+  )
+set(ROTARY_ENCODER YES)
+set(LUA_EXPORT lua_export_arduino)
+set(BLUETOOTH NO)
+set(USB_CHARGER YES)
+set(SBUS ON)
+add_definitions(-DDEBUG)
+set(AUX_SERIAL_DRIVER aux_serial_driver.cpp)
+
+add_definitions(-DRADIO_ZORRO)
+add_definitions(-DEEPROM_VARIANT=0x4006)
+add_definitions(-DMANUFACTURER_RADIOMASTER)
+
+set(TIMER_DRIVER timers_driver.cpp)
+if(ARDUINO_PCB STREQUAL FEATHER_ESP32V2)
+  #set(EEPROM_MEDIA spiffs_eeprom.cpp)
+elseif(ARDUINO_PCB STREQUAL FEATHER_F405)
+  set(EEPROM_MEDIA sd_eeprom.cpp)
+endif()
+
+if(GYRO)
+  add_definitions(-DGYRO)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    #../common/arm/stm32/lsm6ds_driver.cpp
+    )
+  set(SRC
+    ${SRC}
+    gyro.cpp
+    )
+endif()
+
+if(INTERNAL_MODULE_SERIAL)
+  add_definitions(-DINTERNAL_MODULE_SERIAL)
+  if(PXX_FREQUENCY STREQUAL HIGH)
+    add_definitions(-DPXX_FREQUENCY_HIGH)
+  endif()
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    #../common/arm/stm32/intmodule_serial_driver.cpp
+    )
+elseif(INTERNAL_MODULE_PXX1 OR INTERNAL_MODULE_PXX2)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    #intmodule_pulses_driver.cpp
+    )
+endif()
+
+if(INTERNAL_MODULE_MULTI)
+  option(DSM2 "DSM2 TX Module" ON)
+  add_definitions(-DDSM2)
+  option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
+  if(MULTIMODULE)
+    add_definitions(-DMULTIMODULE)
+    set(SRC ${SRC} pulses/multi.cpp telemetry/spektrum.cpp telemetry/hitec.cpp telemetry/hott.cpp telemetry/mlink.cpp telemetry/multi.cpp io/multi_firmware_update.cpp)
+  endif()
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_MULTI)
+  add_definitions(-DINTERNAL_MODULE_SERIAL_TELEMETRY)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    intmodule_serial_driver.cpp
+    )
+endif()
+
+if(ROTARY_ENCODER)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    #../common/arm/stm32/rotary_encoder_driver.cpp
+    )
+endif()
+
+if(BIND_KEY)
+  set(TARGET_SRC
+        ${TARGET_SRC}
+        bind_button_driver.cpp
+        )
+  add_definitions(-DBIND_KEY)
+endif()
+
+if(USB_CHARGER)
+  set(TARGET_SRC ${TARGET_SRC} usb_charger_driver.cpp)
+  add_definitions(-DUSB_CHARGER)
+endif()
+
+if(BLUETOOTH)
+  add_definitions(-DBLUETOOTH)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    #../common/arm/stm32/bluetooth_driver.cpp
+    )
+  set(SRC
+    ${SRC}
+    bluetooth.cpp
+    )
+endif()
+
+if(AUTOUPDATE)
+  add_definitions(-DAUTOUPDATE)
+endif()
+
+set(HSE_VALUE 12000000)
+set(SDCARD YES)
+set(EEPROM EEPROM_RAW)
+set(TARGET_DIR adafruit)
+set(PPM_LIMITS_SYMETRICAL YES)
+
+if(SPLASH STREQUAL OFF)
+  message(FATAL_ERROR "Option SPLASH=OFF not supported on Taranis")
+endif()
+
+add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
+add_definitions(-DSBUS_TRAINER)
+
+set(SRC
+  ${SRC}
+  main.cpp
+  tasks.cpp
+  audio.cpp
+  haptic.cpp
+  dump.cpp
+  pulses/pulses.cpp
+  pulses/crossfire.cpp
+  telemetry/telemetry.cpp
+  telemetry/telemetry_sensors.cpp
+  telemetry/crossfire.cpp
+  telemetry/frsky.cpp
+  telemetry/frsky_d.cpp
+  telemetry/frsky_sport.cpp
+  telemetry/frsky_pxx2.cpp
+  telemetry/flysky_ibus.cpp
+  crc.cpp
+  vario.cpp
+  )
+
+set(SRC
+  ${SRC}
+  io/frsky_firmware_update.cpp
+  io/multi_firmware_update.cpp
+  )
+
+foreach(LANGUAGE ${TTS_LANGUAGES})
+  string(TOLOWER ${LANGUAGE} lang_lower)
+  set(SRC ${SRC} translations/tts_${lang_lower}.cpp)
+endforeach()
+
+set(GUI_SRC
+  ${GUI_SRC}
+  ${GVAR_SCREEN}
+  model_input_edit.cpp
+  model_mix_edit.cpp
+  model_display.cpp
+  radio_diagkeys.cpp
+  radio_diaganas.cpp
+  view_channels.cpp
+  view_telemetry.cpp
+  view_about.cpp
+  bmp.cpp
+  )
+
+if(STATUS_LEDS)
+  set(LED_DRIVER led_driver.cpp)
+endif()
+
+set(SRC
+  ${SRC}
+  sbus.cpp
+  )
+
+set(FIRMWARE_SRC
+  ${FIRMWARE_SRC}
+  hal/adc_driver.cpp
+  serial.cpp
+  )
+
+set(PULSES_SRC
+  ${PULSES_SRC}
+  pulses.cpp
+  ppm.cpp
+  modules_helpers.cpp
+  )
+
+if(DSM2)
+  set(PULSES_SRC
+    ${PULSES_SRC}
+    dsm2.cpp
+    )
+endif()
+
+if(SBUS)
+  set(PULSES_SRC
+    ${PULSES_SRC}
+    sbus.cpp
+    )
+endif()
+
+set(TARGET_SRC
+  ${TARGET_SRC}
+  ${LED_DRIVER}
+  ${AUX_SERIAL_DRIVER}
+  syscalls.c
+  backlight_driver.cpp
+  trainer_driver.cpp
+  lcd_driver.cpp
+  haptic_driver.cpp
+  telemetry_driver.cpp
+  diskio.cpp
+  ${EEPROM_MEDIA}
+  ${TIMER_DRIVER}
+  #../common/arm/stm32/audio_dac_driver.cpp
+  adc_hal_driver.cpp
+  #../common/arm/stm32/heartbeat_driver.cpp
+  mixer_scheduler_driver.cpp
+  )
+
+if(ARDUINO_PCB STREQUAL FEATHER_ESP32V2)
+set(TARGET_SRC
+  ${TARGET_SRC}
+  esp32_rmt_pulse_driver.cpp
+)
+endif()
+
+set(FIRMWARE_TARGET_SRC
+  ${FIRMWARE_TARGET_SRC}
+  #${LCD_DRIVER}
+  board.cpp
+  keys_driver.cpp
+
+  i2c_driver.cpp
+  pwr_driver.cpp
+  rtc_driver.cpp
+  #../common/arm/loadboot.cpp
+  )
+
+if(LCD_DUAL_BUFFER)
+  add_definitions(-DLCD_DUAL_BUFFER)
+endif()
+
+
+if(INTERNAL_MODULE_ELRS)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_ELRS)
+  add_definitions(-DINTERNAL_MODULE_SERIAL_TELEMETRY)
+  set(INTERNAL_MODULE_MULTI NO)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    #../common/arm/stm32/intmodule_serial_driver.cpp
+    )
+endif()
+
+if(INTERNAL_MODULE_PPM)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_PPM)
+endif()
+
+if(INTERNAL_MODULE_ELRS)
+  add_definitions(-DHARDWARE_INTERNAL_MODULE)
+  add_definitions(-DINTERNAL_MODULE_ELRS)
+endif()
+
+if(EXTERNAL_MODULE)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    extmodule_driver.cpp
+    )
+  add_definitions(-DHARDWARE_EXTERNAL_MODULE)
+endif()
+
+set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})

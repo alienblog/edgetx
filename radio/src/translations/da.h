@@ -70,7 +70,7 @@
   #define TR_RETA123                   "S","H","G","K","1","3","2","4","5","V","H"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "S","H","G","K","1","2","3","4","V","H","V","H"
-#elif defined(PCBTARANIS)
+#elif defined(PCB_ARDUINO) || defined(PCBTARANIS)
   #define TR_RETA123                   "S","H","G","K","1","2","3","V","H"
 #else
   #define TR_RETA123                   "S","H","G","K","1","2","3"
@@ -312,7 +312,7 @@
   #define TR_OK                        TR("\010" "\010" "\010" "[OK]", "\010" "\010" "\010" "\010" "\010" "[OK]")
 #endif
 
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
   #define TR_POPUPS_ENTER_EXIT         TR(TR_EXIT "\010" TR_ENTER, TR_EXIT "\010" "\010" "\010" "\010" TR_ENTER)
 #else
   #define TR_POPUPS_ENTER_EXIT         TR_ENTER "\010" TR_EXIT

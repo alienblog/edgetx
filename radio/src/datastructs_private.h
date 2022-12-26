@@ -30,7 +30,7 @@
 #include "globals.h"
 #include "serial.h"
 
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
   #define TARANIS_FIELD(x) x;
 #else
@@ -145,7 +145,7 @@ PACK(struct LogicalSwitchData {
  */
 
 
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
   #define CFN_SPARE_TYPE               int32_t
 #else
   #define CFN_SPARE_TYPE               int16_t
@@ -314,7 +314,7 @@ PACK(struct FrSkyLineData {
 });
 #endif
 
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
 PACK(struct TelemetryScriptData {
   char    file[LEN_SCRIPT_FILENAME];
   int16_t inputs[MAX_TELEM_SCRIPT_INPUTS];
@@ -325,7 +325,7 @@ PACK(struct TelemetryScriptData {
 union TelemetryScreenData_u {
   FrSkyBarData  bars[4];
   FrSkyLineData lines[4];
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
   TelemetryScriptData script;
 #endif
 };
@@ -337,7 +337,7 @@ PACK(struct TelemetryScreenData {
 union TelemetryScreenData {
   FrSkyBarData  bars[4];
   FrSkyLineData lines[4];
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
   TelemetryScriptData script;
 #endif
 } FUNC(select_tele_screen_data);
@@ -599,7 +599,7 @@ PACK(struct CustomScreenData {
   #define TOPBAR_DATA
 #endif
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14)
+#if defined(PCB_ARDUINO) || defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBNV14)
   #define SCRIPT_DATA \
     NOBACKUP(ScriptData scriptsData[MAX_SCRIPTS]);
 #else

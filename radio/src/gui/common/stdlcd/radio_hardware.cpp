@@ -27,7 +27,7 @@
   #include "telemetry/crossfire.h"
 #endif
 
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
 enum {
   ITEM_RADIO_HARDWARE_LABEL_STICKS,
   ITEM_RADIO_HARDWARE_STICK1,
@@ -493,7 +493,7 @@ void menuRadioHardware(event_t event)
       }
 
       case ITEM_RADIO_HARDWARE_BATTERY_CALIB:
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
         lcdDrawTextAlignedLeft(y, STR_BATT_CALIB);
         putsVolts(HW_SETTINGS_COLUMN2, y, getBatteryVoltage(), attr|PREC2|LEFT);
 #else

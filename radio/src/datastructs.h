@@ -47,7 +47,7 @@ static inline void check_struct()
 
   CHKSIZE(VarioData, 5);
 
-#if defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
+#if defined(PCB_ARDUINO) || defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
   CHKSIZE(LimitData, 11);
@@ -128,7 +128,7 @@ static inline void check_struct()
 #elif defined(RADIO_BOXER)
   CHKSIZE(RadioData, 875);
   CHKSIZE(ModelData, 6165);
-#elif defined(PCBX7)
+#elif defined(PCB_ARDUINO) || defined(PCBX7)
   CHKSIZE(RadioData, 866);
   CHKSIZE(ModelData, 6164);
 #elif defined(PCBX9E)

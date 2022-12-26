@@ -65,7 +65,7 @@
   #define TR_RETA123                   "R","E","T","A","1","3","2","4","5","L","R"
 #elif defined(PCBX9E)
   #define TR_RETA123                   "R","E","T","A","1","2","3","4","L","R","L","R"
-#elif defined(PCBTARANIS)
+#elif defined(PCB_ARDUINO) || defined(PCBTARANIS)
   #define TR_RETA123                   "R","E","T","A","1","2","3","L","R"
 #else
   #define TR_RETA123                   "R","E","T","A","1","2","3"
@@ -291,7 +291,7 @@
 #endif
 #endif
 
-#if defined(PCBFRSKY)
+#if defined(PCB_ARDUINO) || defined(PCBFRSKY)
   #define TR_ENTER                     "[ENTER]"
 #elif defined(PCBNV14)
   #define TR_ENTER                     "[NEXT]"
@@ -307,7 +307,7 @@
   #define TR_OK                        TR("\010" "\010" "\010" "[OK]", "\010" "\010" "\010" "\010" "\010" "[OK]")
 #endif
 
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
   #define TR_POPUPS_ENTER_EXIT         TR(TR_EXIT "\010" TR_ENTER, TR_EXIT "\010" "\010" "\010" "\010" TR_ENTER)
 #else
   #define TR_POPUPS_ENTER_EXIT         TR_ENTER "\010" TR_EXIT

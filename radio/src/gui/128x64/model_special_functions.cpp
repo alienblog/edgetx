@@ -70,7 +70,7 @@ void onCustomFunctionsFileSelectionMenu(const char * result)
 }
 #endif // SDCARD
 
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
 void onAdjustGvarSourceLongEnterPress(const char * result)
 {
   CustomFunctionData * cfn = &g_model.customFn[menuVerticalPosition];
@@ -146,7 +146,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
   uint8_t eeFlags = (functions == g_model.customFn) ? EE_MODEL : EE_GENERAL;
 
-#if defined(PCBTARANIS)
+#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
 #if defined(PCBXLITE)
   // ENT LONG on xlite brings up switch type menu, so this menu is activated with SHIFT + ENT LONG
   if (menuHorizontalPosition==0 && event==EVT_KEY_LONG(KEY_ENTER) && IS_SHIFT_PRESSED() && !READ_ONLY()) {

@@ -447,7 +447,7 @@ bool setupPulsesInternalModule(uint8_t protocol)
       return true;
 #endif
 
-#if defined(PCBTARANIS) && defined(INTERNAL_MODULE_PPM)
+#if (defined(PCB_ARDUINO) || defined(PCBTARANIS)) && defined(INTERNAL_MODULE_PPM)
     case PROTOCOL_CHANNELS_PPM:
       setupPulsesPPMInternalModule();
       return true;

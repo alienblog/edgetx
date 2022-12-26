@@ -54,8 +54,9 @@ safetych_t safetyCh[MAX_OUTPUT_CHANNELS];
 
 // __DMA for the MSC_BOT_Data member
 union ReusableBuffer reusableBuffer __DMA;
-
+#if !defined(PCB_ARDUINO)
 uint8_t* MSC_BOT_Data = reusableBuffer.MSC_BOT_Data;
+#endif
 
 #if defined(DEBUG_LATENCY)
 uint8_t latencyToggleSwitch = 0;
@@ -695,7 +696,7 @@ static void checkRTCBattery()
   }
 }
 
-#if defined(PCBFRSKY) || defined(PCBFLYSKY)
+#if defined(PCB_ARDUINO) || defined(PCBFRSKY) || defined(PCBFLYSKY)
 static void checkFailsafe()
 {
   for (int i=0; i<NUM_MODULES; i++) {
@@ -1835,7 +1836,15 @@ extern "C" void initialise_monitor_handles();
 #if defined(SIMU)
 void simuMain()
 #else
+#if defined(PCB_ARDUINO)
+#ifdef ARDUINO_FEATHER_F405
+extern "C" void setup()
+#else
+void setup()
+#endif
+#else
 int main()
+#endif
 #endif
 {
 #if defined(SEMIHOSTING)
@@ -1843,11 +1852,11 @@ int main()
 #endif
 
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(PCB_ARDUINO)
   /* Ensure all priority bits are assigned as preemption priority bits. */
   NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 #endif
-
+#if defined(STM32)
   TRACE("reusableBuffer: modelSel=%d, moduleSetup=%d, calib=%d, sdManager=%d, hardwareAndSettings=%d, spectrumAnalyser=%d, usb=%d",
         sizeof(reusableBuffer.modelsel),
         sizeof(reusableBuffer.moduleSetup),
@@ -1856,7 +1865,7 @@ int main()
         sizeof(reusableBuffer.hardwareAndSettings),
         sizeof(reusableBuffer.spectrumAnalyser),
         sizeof(reusableBuffer.MSC_BOT_Data));
-
+#endif
   // G: The WDT remains active after a WDT reset -- at maximum clock speed. So it's
   // important to disable it before commencing with system initialisation (or
   // we could put a bunch more WDG_RESET()s in. But I don't like that approach

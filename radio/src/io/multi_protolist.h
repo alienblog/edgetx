@@ -30,7 +30,9 @@
 #if !defined(SIMU)
 // Forward declare FreeRTOS timer
 struct tmrTimerControl;
+#if !defined(PCB_ARDUINO)
 typedef struct tmrTimerControl * TimerHandle_t;
+#endif
 #endif
 
 class MultiRfProtocols
