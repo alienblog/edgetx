@@ -525,26 +525,20 @@ void DMACopyAlphaBitmap(uint16_t *dest, uint16_t destw, uint16_t desth,
   DMA2D_InitStruct.NbrOfPixelsPerLines = w;
   LL_DMA2D_Init(DMA2D, &DMA2D_InitStruct);
 
-  DMA2D_FG_InitTypeDef DMA2D_FG_InitStruct;
-  DMA2D_FG_StructInit(&DMA2D_FG_InitStruct);
-  DMA2D_FG_InitStruct.DMA2D_FGMA = CONVERT_PTR_UINT(src + srcy*srcw + srcx);
-  DMA2D_FG_InitStruct.DMA2D_FGO = srcw - w;
-  DMA2D_FG_InitStruct.DMA2D_FGCM = CM_ARGB4444;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_VALUE = 0;
-  DMA2D_FGConfig(&DMA2D_FG_InitStruct);
+  LL_DMA2D_FGND_SetMemAddr(DMA2D, CONVERT_PTR_UINT(src + srcy*srcw + srcx));
+  LL_DMA2D_FGND_SetLineOffset(DMA2D, srcw - w);
+  LL_DMA2D_FGND_SetColorMode(DMA2D, LL_DMA2D_INPUT_MODE_ARGB4444);
+  LL_DMA2D_FGND_SetAlphaMode(DMA2D, LL_DMA2D_ALPHA_MODE_NO_MODIF);
+  LL_DMA2D_FGND_SetAlpha(DMA2D, 0);
 
-  DMA2D_BG_InitTypeDef DMA2D_BG_InitStruct;
-  DMA2D_BG_StructInit(&DMA2D_BG_InitStruct);
-  DMA2D_BG_InitStruct.DMA2D_BGMA = CONVERT_PTR_UINT(dest + y*destw + x);
-  DMA2D_BG_InitStruct.DMA2D_BGO = destw - w;
-  DMA2D_BG_InitStruct.DMA2D_BGCM = CM_RGB565;
-  DMA2D_BG_InitStruct.DMA2D_BGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
-  DMA2D_BG_InitStruct.DMA2D_BGPFC_ALPHA_VALUE = 0;
-  DMA2D_BGConfig(&DMA2D_BG_InitStruct);
+  LL_DMA2D_BGND_SetMemAddr(DMA2D, CONVERT_PTR_UINT(dest + y*destw + x));
+  LL_DMA2D_BGND_SetLineOffset(DMA2D, destw - w);
+  LL_DMA2D_BGND_SetColorMode(DMA2D, LL_DMA2D_OUTPUT_MODE_RGB565);
+  LL_DMA2D_BGND_SetAlphaMode(DMA2D, LL_DMA2D_ALPHA_MODE_NO_MODIF);
+  LL_DMA2D_BGND_SetAlpha(DMA2D, 0);
 
   /* Start Transfer */
-  DMA2D_StartTransfer();
+  LL_DMA2D_Start(DMA2D);
 }
 
 // same as DMACopyAlphaBitmap(), but with an 8 bit mask for each pixel (used by fonts)
@@ -554,75 +548,67 @@ void DMACopyAlphaMask(uint16_t *dest, uint16_t destw, uint16_t desth,
                       uint16_t h, uint16_t bg_color)
 {
   DMAWait();
-  DMA2D_DeInit();
+  LL_DMA2D_DeInit(DMA2D);
 
-  DMA2D_InitTypeDef DMA2D_InitStruct;
-  DMA2D_InitStruct.DMA2D_Mode = DMA2D_M2M_BLEND;
-  DMA2D_InitStruct.DMA2D_CMode = CM_RGB565;
-  DMA2D_InitStruct.DMA2D_OutputMemoryAdd = CONVERT_PTR_UINT(dest + y*destw + x);
-  DMA2D_InitStruct.DMA2D_OutputBlue = 0;
-  DMA2D_InitStruct.DMA2D_OutputGreen = 0;
-  DMA2D_InitStruct.DMA2D_OutputRed = 0;
-  DMA2D_InitStruct.DMA2D_OutputAlpha = 0;
-  DMA2D_InitStruct.DMA2D_OutputOffset = destw - w;
-  DMA2D_InitStruct.DMA2D_NumberOfLine = h;
-  DMA2D_InitStruct.DMA2D_PixelPerLine = w;
-  DMA2D_Init(&DMA2D_InitStruct);
+  LL_DMA2D_InitTypeDef DMA2D_InitStruct;
+  DMA2D_InitStruct.Mode = LL_DMA2D_MODE_M2M_BLEND;
+  DMA2D_InitStruct.ColorMode = LL_DMA2D_OUTPUT_MODE_RGB565;
+  DMA2D_InitStruct.OutputMemoryAddress = CONVERT_PTR_UINT(dest + y*destw + x);
+  DMA2D_InitStruct.OutputGreen = 0;
+  DMA2D_InitStruct.OutputBlue = 0;
+  DMA2D_InitStruct.OutputRed = 0;
+  DMA2D_InitStruct.OutputAlpha = 0;
+  DMA2D_InitStruct.LineOffset = destw - w;
+  DMA2D_InitStruct.NbrOfLines = h;
+  DMA2D_InitStruct.NbrOfPixelsPerLines = w;
+  LL_DMA2D_Init(DMA2D, &DMA2D_InitStruct);
 
-  DMA2D_FG_InitTypeDef DMA2D_FG_InitStruct;
-  DMA2D_FG_StructInit(&DMA2D_FG_InitStruct);
-  DMA2D_FG_InitStruct.DMA2D_FGMA = CONVERT_PTR_UINT(src + srcy*srcw + srcx);
-  DMA2D_FG_InitStruct.DMA2D_FGO = srcw - w;
-  DMA2D_FG_InitStruct.DMA2D_FGCM = CM_A8; // 8 bit inputs every time
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_VALUE = 0;
-  DMA2D_FG_InitStruct.DMA2D_FGC_RED   = GET_RED(bg_color);   // 8 bit red
-  DMA2D_FG_InitStruct.DMA2D_FGC_GREEN = GET_GREEN(bg_color); // 8 bit green
-  DMA2D_FG_InitStruct.DMA2D_FGC_BLUE  = GET_BLUE(bg_color);  // 8 bit blue
+  LL_DMA2D_FGND_SetMemAddr(DMA2D, CONVERT_PTR_UINT(src + srcy*srcw + srcx));
+  LL_DMA2D_FGND_SetLineOffset(DMA2D, srcw - w);
+  LL_DMA2D_FGND_SetColorMode(DMA2D, LL_DMA2D_INPUT_MODE_A8);
+  LL_DMA2D_FGND_SetAlphaMode(DMA2D, LL_DMA2D_ALPHA_MODE_NO_MODIF);
+  LL_DMA2D_FGND_SetAlpha(DMA2D, 0);
+  LL_DMA2D_FGND_SetRedColor(DMA2D, GET_RED(bg_color));     // 8 bit red
+  LL_DMA2D_FGND_SetGreenColor(DMA2D, GET_GREEN(bg_color)); // 8 bit green
+  LL_DMA2D_FGND_SetBlueColor(DMA2D, GET_BLUE(bg_color));   // 8 bit blue
   
-  DMA2D_FGConfig(&DMA2D_FG_InitStruct);
-
-  DMA2D_BG_InitTypeDef DMA2D_BG_InitStruct;
-  DMA2D_BG_StructInit(&DMA2D_BG_InitStruct);
-  DMA2D_BG_InitStruct.DMA2D_BGMA = CONVERT_PTR_UINT(dest + y*destw + x);
-  DMA2D_BG_InitStruct.DMA2D_BGO = destw - w;
-  DMA2D_BG_InitStruct.DMA2D_BGCM = CM_RGB565;
-  DMA2D_BG_InitStruct.DMA2D_BGPFC_ALPHA_MODE = NO_MODIF_ALPHA_VALUE;
-  DMA2D_BG_InitStruct.DMA2D_BGPFC_ALPHA_VALUE = 0;
-  DMA2D_BGConfig(&DMA2D_BG_InitStruct);
+  LL_DMA2D_BGND_SetMemAddr(DMA2D, CONVERT_PTR_UINT(dest + y*destw + x));
+  LL_DMA2D_BGND_SetLineOffset(DMA2D, destw - w);
+  LL_DMA2D_BGND_SetColorMode(DMA2D, LL_DMA2D_OUTPUT_MODE_RGB565);
+  LL_DMA2D_BGND_SetAlphaMode(DMA2D, LL_DMA2D_ALPHA_MODE_NO_MODIF);
+  LL_DMA2D_BGND_SetAlpha(DMA2D, 0);
 
   /* Start Transfer */
-  DMA2D_StartTransfer();
+  LL_DMA2D_Start(DMA2D);
+  DMAWait();
 }
 
 void DMABitmapConvert(uint16_t * dest, const uint8_t * src, uint16_t w, uint16_t h, uint32_t format)
 {
-  DMA2D_DeInit();
+  DMAWait();
+  LL_DMA2D_DeInit(DMA2D);
 
-  DMA2D_InitTypeDef DMA2D_InitStruct;
-  DMA2D_InitStruct.DMA2D_Mode = DMA2D_M2M_PFC;
-  DMA2D_InitStruct.DMA2D_CMode = format;
-  DMA2D_InitStruct.DMA2D_OutputMemoryAdd = CONVERT_PTR_UINT(dest);
-  DMA2D_InitStruct.DMA2D_OutputGreen = 0;
-  DMA2D_InitStruct.DMA2D_OutputBlue = 0;
-  DMA2D_InitStruct.DMA2D_OutputRed = 0;
-  DMA2D_InitStruct.DMA2D_OutputAlpha = 0;
-  DMA2D_InitStruct.DMA2D_OutputOffset = 0;
-  DMA2D_InitStruct.DMA2D_NumberOfLine = h;
-  DMA2D_InitStruct.DMA2D_PixelPerLine = w;
-  DMA2D_Init(&DMA2D_InitStruct);
+  LL_DMA2D_InitTypeDef DMA2D_InitStruct;
+  DMA2D_InitStruct.Mode = LL_DMA2D_MODE_M2M_PFC;
+  DMA2D_InitStruct.ColorMode = format;
+  DMA2D_InitStruct.OutputMemoryAddress = CONVERT_PTR_UINT(dest);
+  DMA2D_InitStruct.OutputGreen = 0;
+  DMA2D_InitStruct.OutputBlue = 0;
+  DMA2D_InitStruct.OutputRed = 0;
+  DMA2D_InitStruct.OutputAlpha = 0;
+  DMA2D_InitStruct.LineOffset = 0;
+  DMA2D_InitStruct.NbrOfLines = h;
+  DMA2D_InitStruct.NbrOfPixelsPerLines = w;
+  LL_DMA2D_Init(DMA2D, &DMA2D_InitStruct);
 
-  DMA2D_FG_InitTypeDef DMA2D_FG_InitStruct;
-  DMA2D_FG_StructInit(&DMA2D_FG_InitStruct);
-  DMA2D_FG_InitStruct.DMA2D_FGMA = CONVERT_PTR_UINT(src);
-  DMA2D_FG_InitStruct.DMA2D_FGO = 0;
-  DMA2D_FG_InitStruct.DMA2D_FGCM = CM_ARGB8888;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_MODE = REPLACE_ALPHA_VALUE;
-  DMA2D_FG_InitStruct.DMA2D_FGPFC_ALPHA_VALUE = 0;
-  DMA2D_FGConfig(&DMA2D_FG_InitStruct);
+  LL_DMA2D_FGND_SetMemAddr(DMA2D, CONVERT_PTR_UINT(src));
+  LL_DMA2D_FGND_SetLineOffset(DMA2D, 0);
+  LL_DMA2D_FGND_SetColorMode(DMA2D, LL_DMA2D_INPUT_MODE_ARGB8888);
+  LL_DMA2D_FGND_SetAlphaMode(DMA2D, LL_DMA2D_ALPHA_MODE_REPLACE);
+  LL_DMA2D_FGND_SetAlpha(DMA2D, 0);
 
   /* Start Transfer */
-  DMA2D_StartTransfer();
+  LL_DMA2D_Start(DMA2D);
 }
 
 extern "C" void LTDC_IRQHandler(void)
