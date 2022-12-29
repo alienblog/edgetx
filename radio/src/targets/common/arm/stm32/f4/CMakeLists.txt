@@ -11,6 +11,7 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_gpio.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_tim.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma2d.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_usart.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_rcc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_ll_exti.c
@@ -64,7 +65,6 @@ if(CPU_TYPE_FULL STREQUAL STM32F429xI)
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_fmc.c
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_ltdc.c
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma.c
-    ${STM32_STDPERIPH_DIR}/src/stm32f4xx_dma2d.c
     ${STM32_STDPERIPH_DIR}/src/stm32f4xx_sdio.c
     )
 else()
