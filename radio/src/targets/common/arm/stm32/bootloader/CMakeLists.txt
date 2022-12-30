@@ -35,6 +35,7 @@ set(BOOTLOADER_SRC
   ../usb_driver.cpp
   ../flash_driver.cpp
   ../stm32_exti_driver.cpp
+  ../dma2d.cpp
   init.c
   boot.cpp
   bin_files.cpp
