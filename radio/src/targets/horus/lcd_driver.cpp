@@ -22,8 +22,13 @@
 #include "stm32_hal_ll.h"
 #include "opentx_types.h"
 #include "dma2d.h"
-#include "libopenui_config.h"
+#include "hal.h"
+#include "delays_driver.h"
+#include "debug.h"
+//#include "libopenui_config.h"
 #include "lcd.h"
+#include "stm32_hal.h"
+#include "stm32f4xx_hal_rcc_ex.h"
 #include <lvgl/lvgl.h>
 
 #if defined(RADIO_T18)
@@ -46,7 +51,10 @@
   #define VFP  2
 #endif
 
+static LTDC_HandleTypeDef hltdc;
+
 #if defined(LCD_VERTICAL_INVERT)
+typedef uint16_t pixel_t;
 static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM;
 static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM;
 
@@ -187,7 +195,7 @@ inline void LCD_NRST_HIGH()
 
 static void LCD_AF_GPIOConfig()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+  LL_GPIO_InitTypeDef GPIO_InitStructure;
 
       /* GPIOs Configuration */
       /*
@@ -207,66 +215,39 @@ static void LCD_AF_GPIOConfig()
                 | LCD_CS <-> PI.10    |LCD_SCK<->PI.11
                  -----------------------------------------------------
   */
+
   // GPIOI configuration
-  GPIO_PinAFConfig(GPIOI, GPIO_PinSource12, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOI, GPIO_PinSource13, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOI, GPIO_PinSource14, GPIO_AF_LTDC);
-
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14;
-  GPIO_InitStructure.GPIO_Speed =GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode =GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType =GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd =GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOI, &GPIO_InitStructure);
-
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource7, GPIO_AF_LTDC);
-
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-  GPIO_Init(GPIOK, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin        = LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14;
+  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.Mode       = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
+  GPIO_InitStructure.Alternate  = LL_GPIO_AF_14; // AF LTDC
+  LL_GPIO_Init(GPIOI, &GPIO_InitStructure);
 
   // GPIOJ configuration
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource2, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource3, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource4, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource5, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource6, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource9, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource10, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource11, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOJ, GPIO_PinSource15, GPIO_AF_LTDC);
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_3  | LL_GPIO_PIN_4  | LL_GPIO_PIN_5 | LL_GPIO_PIN_6
+                         | LL_GPIO_PIN_9 | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | LL_GPIO_PIN_15;
 
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | \
-                               GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_15;
-
-  GPIO_Init(GPIOJ, &GPIO_InitStructure);
+  LL_GPIO_Init(GPIOJ, &GPIO_InitStructure);
 
   // GPIOK configuration
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource0, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource1, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource2, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource3, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource4, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource5, GPIO_AF_LTDC);
-  GPIO_PinAFConfig(GPIOK, GPIO_PinSource6, GPIO_AF_LTDC);
+  GPIO_InitStructure.Pin = LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3 | LL_GPIO_PIN_4
+                         | LL_GPIO_PIN_5 | LL_GPIO_PIN_6 | LL_GPIO_PIN_7;
 
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 ;
-
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOK, &GPIO_InitStructure);
+  LL_GPIO_Init(GPIOK, &GPIO_InitStructure);
 }
 
 static void LCD_NRSTConfig(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = LCD_GPIO_PIN_NRST;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-  GPIO_Init(LCD_GPIO_NRST, &GPIO_InitStructure);
+  LL_GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.Pin        = LCD_GPIO_PIN_NRST;
+  GPIO_InitStructure.Mode       = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStructure.Speed      = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStructure.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStructure.Pull       = LL_GPIO_PULL_NO;
+
+  LL_GPIO_Init(LCD_GPIO_NRST, &GPIO_InitStructure);
 }
 
 static void lcdReset(void)
@@ -287,7 +268,7 @@ static void lcdReset(void)
 
 void LCD_Init_LTDC()
 {
-  LTDC_InitTypeDef LTDC_InitStruct;
+	hltdc.Instance = LTDC;
 
   /* Configure PLLSAI prescalers for LCD */
   /* PLLSAI_VCO Input = HSE_VALUE/PLL_M = 1 MHz */
@@ -297,20 +278,29 @@ void LCD_Init_LTDC()
   /* alternatively LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDivR = 64/8 = 8 MHz */
   //second pam is for audio
   //third pam is for LCD
-  RCC_PLLSAIConfig(192, 6, 3);
-  #if defined(RADIO_TX16S)
-    RCC_LTDCCLKDivConfig(RCC_PLLSAIDivR_Div8);
-  #else
-    RCC_LTDCCLKDivConfig(RCC_PLLSAIDivR_Div4);
-  #endif
-  /* Enable PLLSAI Clock */
-  RCC_PLLSAICmd(ENABLE);
+  RCC_PeriphCLKInitTypeDef clkConfig;
+  clkConfig.PeriphClockSelection = RCC_PERIPHCLK_LTDC;
+  clkConfig.PLLSAI.PLLSAIN = 192;
+  clkConfig.PLLSAI.PLLSAIR = 3;
+  clkConfig.PLLSAIDivQ = 6;
 
+  #if defined(RADIO_TX16S)
+    clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_8;
+  #else
+    clkConfig.PLLSAIDivR = RCC_PLLSAIDIVR_4;
+  #endif
+ // HAL_RCCEx_PeriphCLKConfig(&clkConfig);
+  /* Enable PLLSAI Clock */
+  __HAL_RCC_PLLSAI_ENABLE();
+
+#if 0
   /* Wait for PLLSAI activation */
   while(RCC_GetFlagStatus(RCC_FLAG_PLLSAIRDY) == RESET)
   {
   }
-
+//  HAL_LTDC_MspInit()
+  LTDC_HandleTypeDef ltdc;
+//HAL_LTDC_Init()
   /* LTDC Configuration *********************************************************/
   /* Polarity configuration */
   /* Initialize the horizontal synchronization polarity as active low */
@@ -357,7 +347,7 @@ void LCD_Init_LTDC()
   // Trigger on last line
   LTDC_LIPConfig(LCD_PHYS_H);
   LTDC_ITConfig(LTDC_IER_LIE, ENABLE);
-
+#endif
 #if 0
   DMA2D_ITConfig(DMA2D_CR_TCIE, ENABLE);
   NVIC_InitStructure.NVIC_IRQChannel = DMA2D_IRQn;
@@ -372,6 +362,7 @@ void LCD_Init_LTDC()
 
 void LCD_LayerInit()
 {
+#if 0
   LTDC_Layer_InitTypeDef LTDC_Layer_InitStruct;
 
   /* Windowing configuration */
@@ -432,6 +423,7 @@ void LCD_LayerInit()
   // Enable layer and reload
   LTDC_LayerCmd(LTDC_Layer1, ENABLE);
   LTDC_ReloadConfig(LTDC_IMReload);
+#endif
 }
 
 void LCD_Init(void)
@@ -450,6 +442,7 @@ void LCD_Init(void)
   LCD_Init_LTDC();
 }
 
+extern "C"
 void lcdInit()
 {
 #if defined(LCD_VERTICAL_INVERT)
@@ -463,7 +456,7 @@ void lcdInit()
   LCD_LayerInit();
 
   // Enable LCD display
-  LTDC_Cmd(ENABLE);
+  __HAL_LTDC_ENABLE(&hltdc);
 
   lcdSetFlushCb(startLcdRefresh);
 }

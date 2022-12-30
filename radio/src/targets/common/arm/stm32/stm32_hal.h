@@ -28,6 +28,9 @@ extern "C" {
     #include "stm32f4xx_hal_rcc.h"
     #include "stm32f4xx_hal_rtc.h"
     #include "stm32f4xx_hal_pwr.h"
+    #if defined(COLORLCD)
+      #include "stm32f4xx_hal_ltdc.h"
+    #endif
   #elif defined(STM32F2)
     #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
     #include "stm32f2xx_hal.h"
