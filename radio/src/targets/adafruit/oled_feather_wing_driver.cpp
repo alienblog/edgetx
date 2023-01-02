@@ -32,20 +32,6 @@ extern pixel_t displayBuf[];
 bool lcdInitFinished = false;
 void lcdInitFinish();
 
-void lcdWriteCommand(uint8_t byte)
-{
-}
-
-void lcdHardwareInit()
-{
-}
-
-void lcdStart()
-{
-}
-
-volatile bool lcd_busy;
-
 #if !defined(LCD_DUAL_BUFFER)
 void lcdRefreshWait()
 {
@@ -70,19 +56,11 @@ void lcdRefresh(bool wait)
   display.display();
 }
 
-extern "C" void LCD_DMA_Stream_IRQHandler()
-{
-}
-
 /*
   Proper method for turning of LCD module. It must be used,
   otherwise we might damage LCD crystals in the long run!
 */
 void lcdOff()
-{
-}
-
-void lcdReset()
 {
 }
 
@@ -95,12 +73,6 @@ void lcdReset()
 */
 void lcdInit()
 {
-#ifdef ARDUINO_FEATHER_F405
-#else // default ESP32V2
-  pinMode(NEOPIXEL_I2C_POWER, OUTPUT);
-  digitalWrite(NEOPIXEL_I2C_POWER, HIGH);
-#endif
-
   delay(250); // wait for the OLED to power up
   display.begin(0x3C, true); // Address 0x3C default
 

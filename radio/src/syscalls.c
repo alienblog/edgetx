@@ -27,11 +27,18 @@
 
 #undef errno
 extern int errno;
+
+#if !defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
 extern int _end;
 extern int _heap_end;
 
 unsigned char * heap = (unsigned char *)&_end;
+#else
+extern int _heap_start;
+extern int _heap_end;
 
+unsigned char * heap = (unsigned char *)&_heap_end - (1024 * 64);
+#endif
 extern caddr_t _sbrk(int nbytes)
 {
   if (heap + nbytes < (unsigned char *)&_heap_end) {
@@ -123,11 +130,13 @@ extern int _getpid()
 }
 #endif
 
+#if !defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
 extern void _exit(int status)
 {
   TRACE("_exit(%d)", status);
   for (;;);
 }
+#endif
 
 extern void _kill(int pid, int sig)
 {

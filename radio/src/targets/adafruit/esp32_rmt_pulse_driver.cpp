@@ -22,19 +22,6 @@
 #include "Arduino.h"
 #include "esp32_rmt_pulse.h"
 
-struct _rmt_ctx_ {
-    rmt_obj_t *rmt;
-    bool exit;
-    size_t pulse_in_frame;
-    rmt_data_t *data;
-    float tick_in_ns;
-    TaskHandle_t task_id;
-    StaticTask_t task_struct;
-    StackType_t rmt_tx_stack[1024*2];
-    rmt_tx_encode_cb_t encoder;
-    rmt_rx_decode_cb_t decoder;
-};
-
 static void esp32_rmt_ctx_free(rmt_ctx_t *ctx);
 
 static void esp32_rmt_tx_task(void * pdata) {

@@ -12,13 +12,28 @@ add_definitions(-DFLYSKY_HALL_GIMBAL)
 
 set(PWR_BUTTON "SWITCH" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(HAPTIC YES)
+
+set(USE_OLED_FEATHERWING ON)
+if(USE_OLED_FEATHERWING)
 set(GUI_DIR 128x64)
 set(BITMAPS_DIR ${GUI_DIR})
+set(LCD_DRIVER oled_feather_wing_driver.cpp)
 set(BITMAPS_TARGET 9x_bitmaps)
 set(FONTS_TARGET 9x_fonts_1bit)
-set(LCD_DRIVER lcd_driver_spi.cpp)
 set(GVAR_SCREEN model_gvars.cpp)
+add_definitions(-DUSE_OLED_FEATHERWING)
+else()
+set(GUI_DIR colorlcd)
+set(BITMAPS_DIR 480x272)
+set(LCD_DRIVER lcd_ra8875_driver.cpp)
+add_definitions(-DCOLORLCD -DLIBOPENUI -DHARDWARE_TOUCH)
+add_definitions(-DBATTGRAPH -DTHRTRACE)
+set(BITMAPS_TARGET arduino_bitmaps)
+set(STORAGE_MODELSLIST YES)
+endif()
+
 set(STATUS_LEDS YES)
+set(CROSSFIRE ON)
 add_definitions(-DREQUIRED_SDCARD_VERSION="${SDCARD_VERSION}" -DHAPTIC -DCROSSFIRE -DBOLD_FONT) # TODO-feather
 add_definitions(-DLUA_INPUTS -DTIMERS -DSOFTWARE_VOLUME) # TODO-feather
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -176,6 +191,7 @@ foreach(LANGUAGE ${TTS_LANGUAGES})
   set(SRC ${SRC} translations/tts_${lang_lower}.cpp)
 endforeach()
 
+if(USE_OLED_FEATHERWING)
 set(GUI_SRC
   ${GUI_SRC}
   ${GVAR_SCREEN}
@@ -189,6 +205,19 @@ set(GUI_SRC
   view_about.cpp
   bmp.cpp
   )
+else()
+if (MULTIMODULE)
+  add_definitions(-DMULTI_PROTOLIST)
+    set(SRC ${SRC}
+      io/multi_protolist.cpp
+  )
+endif()
+include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
+
+file(GLOB THEMES_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/themes/*.cpp)
+file(GLOB LAYOUTS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/layouts/*.cpp)
+file(GLOB WIDGETS_SRC RELATIVE ${RADIO_SRC_DIR}/gui/colorlcd ${RADIO_SRC_DIR}/gui/colorlcd/widgets/*.cpp)
+endif()
 
 if(STATUS_LEDS)
   set(LED_DRIVER led_driver.cpp)
@@ -201,6 +230,7 @@ set(SRC
 
 set(FIRMWARE_SRC
   ${FIRMWARE_SRC}
+  syscalls.c
   hal/adc_driver.cpp
   serial.cpp
   )
@@ -230,10 +260,9 @@ set(TARGET_SRC
   ${TARGET_SRC}
   ${LED_DRIVER}
   ${AUX_SERIAL_DRIVER}
-  syscalls.c
   backlight_driver.cpp
   trainer_driver.cpp
-  lcd_driver.cpp
+  ${LCD_DRIVER}
   haptic_driver.cpp
   telemetry_driver.cpp
   diskio.cpp

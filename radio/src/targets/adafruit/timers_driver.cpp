@@ -117,3 +117,7 @@ void stop5msTimer()
   timerAlarmDisable(MyTim5ms);
 #endif
 }
+
+uint32_t ticksNow() {
+   xTaskGetTickCount();
+}

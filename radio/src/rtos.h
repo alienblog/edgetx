@@ -138,7 +138,6 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 #elif defined(RTOS_FREERTOS)  // This is the Arduino version of FreeRTOS
   #include "FreeRTOS_entry.h"
   #define RTOS_MS_PER_TICK portTICK_PERIOD_MS
-
   typedef struct {
     TaskHandle_t rtos_handle;
   } RTOS_TASK_HANDLE;

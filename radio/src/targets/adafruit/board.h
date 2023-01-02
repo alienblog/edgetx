@@ -25,6 +25,9 @@
 #include "definitions.h"
 #include "opentx_constants.h"
 #include "hal.h"
+#include "FreeRTOS_entry.h"
+
+#define SYSTEM_TICKS_1MS portTICK_PERIOD_MS
 
 enum usbMode {
   USB_UNSELECTED_MODE,
@@ -86,10 +89,14 @@ void rotaryEncoderInit();
 void rotaryEncoderCheck();
 #endif
 
+#define BACKLIGHT_LEVEL_MAX     100
+#define BACKLIGHT_LEVEL_MIN     10
+
 #define FLASHSIZE                       0x80000
 #define BOOTLOADER_SIZE                 0x8000
 #define FIRMWARE_ADDRESS                0x08000000
 
+#define LUA_MEM_EXTRA_MAX               (0)    // max allowed memory usage for Lua bitmaps (in bytes)
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
 #if defined(STM32F4)
@@ -112,6 +119,7 @@ void boardOff();
 // Timers driver
 void init2MhzTimer();
 void init5msTimer();
+uint32_t ticksNow();
 
 // PCBREV driver
 enum {
@@ -278,6 +286,9 @@ void check_telemetry_exti();
 #define SDCARD_CS_GPIO 4
 #define FLYSKY_UART_RX_PIN 37
 
+#define RA8875_CS 14
+#define RA8875_RESET 13 // TODO-feather
+
 #else
 #endif
 
@@ -296,6 +307,11 @@ enum EnumKeys
   BUTTONS_ON_GPIOA,
   KEY_LEFT = BUTTONS_ON_GPIOA,
   KEY_BIND,
+  KEY_PGUP,
+  KEY_PGDN,
+  KEY_TELEM,
+  KEY_RADIO,
+  KEY_MODEL,
 
   KEY_COUNT,
   KEY_MAX = KEY_COUNT - 1,
@@ -631,7 +647,9 @@ enum CalibratedAnalogs {
   CALIBRATED_STICK3,
   CALIBRATED_STICK4,
   CALIBRATED_POT_FIRST,
-  CALIBRATED_POT_LAST = CALIBRATED_POT_FIRST + NUM_POTS - 1,
+  CALIBRATED_POT1 = CALIBRATED_POT_FIRST,
+  CALIBRATED_POT2,
+  CALIBRATED_POT_LAST = CALIBRATED_POT2,
   CALIBRATED_SLIDER_FIRST,
   CALIBRATED_SLIDER_LAST = CALIBRATED_SLIDER_FIRST + NUM_SLIDERS - 1,
   NUM_CALIBRATED_ANALOGS
@@ -707,6 +725,10 @@ void pwrResetHandler();
 #else
 #define UNEXPECTED_SHUTDOWN()           (WAS_RESET_BY_WATCHDOG() || g_eeGeneral.unexpectedShutdown)
 #endif
+
+struct TouchState getInternalTouchState();
+struct TouchState touchPanelRead();
+bool touchPanelEventOccured();
 
 // Backlight driver
 void backlightInit();
@@ -930,9 +952,18 @@ void fsLedOn(uint8_t);
 #endif
 
 // LCD driver
+#if defined(USE_OLED_FEATHERWING)
 #define LCD_W                           128
 #define LCD_H                           64
 #define LCD_DEPTH                       1
+void lcdRefresh(bool wait=true); // TODO uint8_t wait to simplify this
+#else
+#define LCD_W                           480
+#define LCD_H                           272
+#define LCD_DEPTH                       16
+void lcdRefresh();
+bool touchPanelInit(void);
+#endif
 #define IS_LCD_RESET_NEEDED()           true
 #define LCD_CONTRAST_MIN                10
 #define LCD_CONTRAST_MAX                30
@@ -957,11 +988,6 @@ void lcdOff();
 void lcdRefreshWait();
 #else
 #define lcdRefreshWait()
-#endif
-#if defined(PCBX9D) || defined(SIMU) || !defined(__cplusplus)
-void lcdRefresh();
-#else
-void lcdRefresh(bool wait=true); // TODO uint8_t wait to simplify this
 #endif
 void lcdSetRefVolt(unsigned char val);
 void lcdSetContrast(bool useDefault = false);

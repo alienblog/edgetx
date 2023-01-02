@@ -33,9 +33,12 @@
 #include <algorithm>
 
 #if !defined(SIMU)
-
+#if defined(RTOS_FREERTOS)  // This is the Arduino version of FreeRTOS
+  #include "FreeRTOS_entry.h"
+#else
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/timers.h>
+#endif
 
 struct ProtoScanTimer {
   TimerHandle_t timer = nullptr;

@@ -22,8 +22,14 @@
 #include "lcd.h"
 #include <lvgl/lvgl.h>
 
+#if !defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
+#else
+extern uint32_t _ext_ram_bss_start;
+pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __attribute__((section(".ext_ram_noinit"), aligned(4)));
+pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __attribute__((section(".ext_ram_noinit"), aligned(4)));
+#endif
 
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);
 BitmapBuffer lcdBuffer2(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_SECOND_FRAME_BUFFER);
@@ -145,8 +151,8 @@ void lcdInitDisplayDriver()
   lv_init();
 
   // Clear buffers first
-  memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
-  memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+  memset(LCD_FIRST_FRAME_BUFFER, 0, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+  memset(LCD_SECOND_FRAME_BUFFER, 0, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
 
   // Init hardware LCD driver
   lcdInit();

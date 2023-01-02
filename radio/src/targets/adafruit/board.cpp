@@ -24,6 +24,13 @@
 extern void adruino_adc_init(void);
 extern void flysky_hall_stick_init();
 
+#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
+extern pixel_t LCD_FIRST_FRAME_BUFFER[];
+extern pixel_t LCD_SECOND_FRAME_BUFFER[];
+#endif
+
+HardwareOptions hardwareOptions;
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -69,11 +76,32 @@ void boardInit()
 {
   disableCore0WDT();
   disableCore1WDT();
+
+#ifdef ARDUINO_FEATHER_F405
+#else // default ESP32V2
+  pinMode(NEOPIXEL_I2C_POWER, OUTPUT);
+  digitalWrite(NEOPIXEL_I2C_POWER, HIGH);
+#endif
+
+#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2) && defined(COLORLCD)
+  psramInit();
+  // The following were put in the "noinit" section of PSRAM, so need to clear those.
+  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
+#if defined(LCD_CONTRAST_DEFAULT)
+  g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
+#endif
+  memset(&g_model, 0, sizeof(g_model));
+  memset(LCD_SECOND_FRAME_BUFFER, 0, LCD_W * LCD_H * sizeof(pixel_t));
+  memset(LCD_FIRST_FRAME_BUFFER, 0, LCD_W * LCD_H * sizeof(pixel_t));
+#endif
+
 #if defined(DEBUG)
   serialSetMode(SP_AUX1, UART_MODE_DEBUG);
   serialInit(SP_AUX1, UART_MODE_DEBUG);
 #endif
+#if !defined(COLORLCD)
   lcdInit();
+#endif
 
   //eepromInit();
   keysInit();

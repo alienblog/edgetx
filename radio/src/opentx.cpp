@@ -36,8 +36,13 @@
 #endif
 
 
+#if !defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2) || !defined(COLORLCD)
 RadioData  g_eeGeneral;
 ModelData  g_model;
+#else
+RadioData  g_eeGeneral __attribute__((section(".ext_ram_noinit"), aligned(4)));
+ModelData  g_model __attribute__((section(".ext_ram_noinit"), aligned(4)));
+#endif
 
 #if defined(SDCARD)
 Clipboard clipboard;
@@ -1705,8 +1710,9 @@ void opentxInit()
 
 #if defined(SDCARD)
   // SDCARD related stuff, only done if not unexpectedShutdown
-  if (!globalData.unexpectedShutdown) {
-
+  //if (!globalData.unexpectedShutdown) {
+  // TODO-feather: kind of strange, why not initialize SD while unexpected shutdown? The rest of the code still reads SD
+  if (1) {
     if (!sdMounted())
       sdInit();
 
