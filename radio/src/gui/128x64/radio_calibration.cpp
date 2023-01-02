@@ -98,7 +98,7 @@ void menuCommonCalib(event_t event)
       for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
         reusableBuffer.calib.loVals[i] = 15000;
         reusableBuffer.calib.hiVals[i] = -15000;
-#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
+#if defined(PCBTARANIS)
         reusableBuffer.calib.midVals[i] = getAnalogValue(i) >> 1;
         if (i<NUM_XPOTS) {
           reusableBuffer.calib.xpotsCalib[i].stepsCount = 0;
@@ -126,7 +126,7 @@ void menuCommonCalib(event_t event)
       break;
 
     case CALIB_STORE:
-#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
+#if defined(PCBTARANIS)
       for (uint8_t i=POT1; i<=POT_LAST; i++) {
         int idx = i - POT1;
         int count = reusableBuffer.calib.xpotsCalib[idx].stepsCount;

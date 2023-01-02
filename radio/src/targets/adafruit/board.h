@@ -276,6 +276,7 @@ void check_telemetry_exti();
 #define RMT_TX_PIN 13
 #define TRAINER_IN_GPIO 12
 #define SDCARD_CS_GPIO 4
+#define FLYSKY_UART_RX_PIN 37
 
 #else
 #endif

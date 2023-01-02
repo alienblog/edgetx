@@ -8,6 +8,7 @@ option(BIND_KEY "Enable bind button" OFF)
 
 set(EXTERNAL_MODULE YES)
 add_definitions(-DHARDWARE_TRIMS)
+add_definitions(-DFLYSKY_HALL_GIMBAL)
 
 set(PWR_BUTTON "SWITCH" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(HAPTIC YES)
@@ -238,6 +239,7 @@ set(TARGET_SRC
   diskio.cpp
   ${EEPROM_MEDIA}
   ${TIMER_DRIVER}
+  flyskyHallStick_driver.cpp
   #../common/arm/stm32/audio_dac_driver.cpp
   adc_hal_driver.cpp
   #../common/arm/stm32/heartbeat_driver.cpp

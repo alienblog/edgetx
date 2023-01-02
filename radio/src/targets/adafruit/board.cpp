@@ -22,6 +22,7 @@
 #include "Arduino.h"
 
 extern void adruino_adc_init(void);
+extern void flysky_hall_stick_init();
 
 #if defined(__cplusplus)
 extern "C" {
@@ -63,6 +64,7 @@ void sportUpdatePowerInit()
 void loop() {
   //display.display();
 }
+
 void boardInit()
 {
   disableCore0WDT();
@@ -76,6 +78,7 @@ void boardInit()
   //eepromInit();
   keysInit();
 
+  flysky_hall_stick_init();
   init5msTimer();
   init2MhzTimer();
   adruino_adc_init();

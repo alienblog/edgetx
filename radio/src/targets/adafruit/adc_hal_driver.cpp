@@ -22,13 +22,19 @@
 #include "Arduino.h"
 #include "hal/adc_driver.h"
 
-uint8_t adcPins[] = {A0, A1, A2, A3, A4, A4, A6};
+uint8_t adcPins[] = {A0, A1};
 static bool arduino_hal_adc_init()
 {
   for (int i = 0; i < sizeof(adcPins)/sizeof(adcPins[0]); i++) {
     adcAttachPin(adcPins[i]);
   }
   analogReadResolution(12);
+
+  // TODO-feather: give those channels a default value, in case the FLySky Hall Gimbals were not connected
+  adcValues[0] = 500;
+  adcValues[1] = 500;
+  adcValues[2] = 500;
+  adcValues[3] = 500;
   return true;
 }
 
@@ -36,7 +42,7 @@ static bool arduino_hal_adc_start_read()
 {
   for (int i = 0; i < sizeof(adcPins)/sizeof(adcPins[0]); i++) {
     //int analogValue = analogRead(adcPins[i]);
-    adcValues[i] = analogReadMilliVolts(adcPins[i]);
+    adcValues[i + 4] = analogReadMilliVolts(adcPins[i]);  // first 4 are the FlySky Hall Gimbals
   }
   return true;
 }
