@@ -24,11 +24,6 @@
 extern void adruino_adc_init(void);
 extern void flysky_hall_stick_init();
 
-#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
-extern pixel_t *LCD_FIRST_FRAME_BUFFER;
-extern pixel_t *LCD_SECOND_FRAME_BUFFER;
-#endif
-
 HardwareOptions hardwareOptions;
 
 #if defined(__cplusplus)
@@ -81,11 +76,6 @@ void boardInit()
 #else // default ESP32V2
   pinMode(NEOPIXEL_I2C_POWER, OUTPUT);
   digitalWrite(NEOPIXEL_I2C_POWER, HIGH);
-#endif
-
-#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2) && defined(COLORLCD)
-  LCD_SECOND_FRAME_BUFFER = (pixel_t *)malloc(LCD_W * LCD_H * sizeof(pixel_t));
-  LCD_FIRST_FRAME_BUFFER = (pixel_t *)malloc(LCD_W * LCD_H * sizeof(pixel_t));
 #endif
 
 #if defined(DEBUG)
