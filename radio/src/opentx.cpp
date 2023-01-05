@@ -36,13 +36,8 @@
 #endif
 
 
-#if !defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2) || !defined(COLORLCD)
 RadioData  g_eeGeneral;
 ModelData  g_model;
-#else
-RadioData  g_eeGeneral __attribute__((section(".ext_ram_noinit"), aligned(4)));
-ModelData  g_model __attribute__((section(".ext_ram_noinit"), aligned(4)));
-#endif
 
 #if defined(SDCARD)
 Clipboard clipboard;
@@ -1892,7 +1887,7 @@ int main()
   }
 #endif
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) && !defined(PCB_ARDUINO)
   // SD_CARD_PRESENT() does not work properly on most
   // B&W targets, so that we need to delay the detection
   // until the SD card is mounted (requires RTOS scheduler running)

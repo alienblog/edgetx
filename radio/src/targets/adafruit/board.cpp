@@ -25,8 +25,8 @@ extern void adruino_adc_init(void);
 extern void flysky_hall_stick_init();
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
-extern pixel_t LCD_FIRST_FRAME_BUFFER[];
-extern pixel_t LCD_SECOND_FRAME_BUFFER[];
+extern pixel_t *LCD_FIRST_FRAME_BUFFER;
+extern pixel_t *LCD_SECOND_FRAME_BUFFER;
 #endif
 
 HardwareOptions hardwareOptions;
@@ -84,15 +84,8 @@ void boardInit()
 #endif
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2) && defined(COLORLCD)
-  psramInit();
-  // The following were put in the "noinit" section of PSRAM, so need to clear those.
-  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
-#if defined(LCD_CONTRAST_DEFAULT)
-  g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
-#endif
-  memset(&g_model, 0, sizeof(g_model));
-  memset(LCD_SECOND_FRAME_BUFFER, 0, LCD_W * LCD_H * sizeof(pixel_t));
-  memset(LCD_FIRST_FRAME_BUFFER, 0, LCD_W * LCD_H * sizeof(pixel_t));
+  LCD_SECOND_FRAME_BUFFER = (pixel_t *)malloc(LCD_W * LCD_H * sizeof(pixel_t));
+  LCD_FIRST_FRAME_BUFFER = (pixel_t *)malloc(LCD_W * LCD_H * sizeof(pixel_t));
 #endif
 
 #if defined(DEBUG)
@@ -103,7 +96,6 @@ void boardInit()
   lcdInit();
 #endif
 
-  //eepromInit();
   keysInit();
 
   flysky_hall_stick_init();

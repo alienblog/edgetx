@@ -919,29 +919,29 @@
 #define TR_SPEAKER                     INDENT"Repro"
 #define TR_BUZZER                      INDENT"Pípák"
 #define TR_BYTES                       "[B]"
-#define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
+#define TR_MODULE_BIND                 EDGETX_BUTTON(TR("Bnd", "Bind"))
 #define TR_POWERMETER_ATTN_NEEDED      "Útlumový člen nutný!"
 #define TR_PXX2_SELECT_RX              "Vyber RX..."
 #define TR_PXX2_DEFAULT                "<výchozí>"
 #define TR_BT_SELECT_DEVICE            "Vyberte zařízení"
 #define TR_DISCOVER                    "Hledat"
-#define TR_BUTTON_INIT                 BUTTON("Init")
+#define TR_BUTTON_INIT                 EDGETX_BUTTON("Init")
 #define TR_WAITING                     "Čekám..."
 #define TR_RECEIVER_DELETE             "Smazat přijímač?"
 #define TR_RECEIVER_RESET              "Resetovat přijímač?"
 #define TR_SHARE                       "Sdílet"
 #define TR_BIND                        "Párovat"
 #define TR_REGISTER                    TR("Reg", "Registrovat")
-#define TR_MODULE_RANGE                BUTTON(TR("Rng", "Dosah"))
+#define TR_MODULE_RANGE                EDGETX_BUTTON(TR("Rng", "Dosah"))
 #define TR_RECEIVER_OPTIONS            TR("MOŽNOSTI RX", "MOŽNOSTI PŘIJÍMAČE")
-#define TR_DEL_BUTTON                  BUTTON(TR("Smaž", "Smazat"))
-#define TR_RESET_BTN                   BUTTON("Reset")
+#define TR_DEL_BUTTON                  EDGETX_BUTTON(TR("Smaž", "Smazat"))
+#define TR_RESET_BTN                   EDGETX_BUTTON("Reset")
 #define TR_DEBUG                       "Debug"
-#define TR_KEYS_BTN                    BUTTON(TR("SW","Přepínače"))
-#define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogy"))
+#define TR_KEYS_BTN                    EDGETX_BUTTON(TR("SW","Přepínače"))
+#define TR_ANALOGS_BTN                 EDGETX_BUTTON(TR("Analog","Analogy"))
 #define TR_TOUCH_NOTFOUND              "Dotyková obrazovka nenalezena"
 #define TR_TOUCH_EXIT                  "Dotkněte se obrazovky pro ukončení"
-#define TR_SET                         BUTTON("Nast")
+#define TR_SET                         EDGETX_BUTTON("Nast")
 #define TR_TRAINER                     "Trenér"
 #define TR_CHANS                       "Kanály"
 #define TR_ANTENNAPROBLEM              CENTER "Problém s TX anténou!"

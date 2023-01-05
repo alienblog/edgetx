@@ -27,8 +27,8 @@ pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM;
 #else
 extern uint32_t _ext_ram_bss_start;
-pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __attribute__((section(".ext_ram_noinit"), aligned(4)));
-pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __attribute__((section(".ext_ram_noinit"), aligned(4)));
+pixel_t *LCD_FIRST_FRAME_BUFFER;
+pixel_t *LCD_SECOND_FRAME_BUFFER;
 #endif
 
 BitmapBuffer lcdBuffer1(BMP_RGB565, LCD_W, LCD_H, (uint16_t *)LCD_FIRST_FRAME_BUFFER);

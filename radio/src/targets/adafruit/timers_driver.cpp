@@ -119,5 +119,5 @@ void stop5msTimer()
 }
 
 uint32_t ticksNow() {
-   xTaskGetTickCount();
+   return xTaskGetTickCount();
 }

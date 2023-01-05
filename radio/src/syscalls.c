@@ -33,14 +33,10 @@ extern int _end;
 extern int _heap_end;
 
 unsigned char * heap = (unsigned char *)&_end;
-#else
-extern int _heap_start;
-extern int _heap_end;
 
-unsigned char * heap = (unsigned char *)&_heap_end - (1024 * 64);
-#endif
 extern caddr_t _sbrk(int nbytes)
 {
+
   if (heap + nbytes < (unsigned char *)&_heap_end) {
     unsigned char * prev_heap = heap;
     heap += nbytes;
@@ -51,6 +47,7 @@ extern caddr_t _sbrk(int nbytes)
     return ((void *)-1);
   }
 }
+#endif
 
 #if defined(THREADSAFE_MALLOC) && !defined(BOOT)
 

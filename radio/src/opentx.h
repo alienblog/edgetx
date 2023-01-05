@@ -331,7 +331,7 @@ struct CustomFunctionsContext {
 #include "strhelpers.h"
 #include "gui.h"
 
-#if !defined(SIMU)
+#if !defined(SIMU) && !defined(assert)
   #define assert(x)
   #if !defined(DEBUG)
     #define printf printf_not_allowed
@@ -477,7 +477,11 @@ extern uint8_t flightModeTransitionLast;
   extern unsigned char *heap;
   extern int _end;
   extern int _heap_end;
+#if !defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
   #define availableMemory() ((unsigned int)((unsigned char *)&_heap_end - heap))
+#else
+  #define availableMemory() 1000
+#endif
 #endif
 
 
