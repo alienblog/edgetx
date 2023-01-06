@@ -150,7 +150,7 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 
   static inline void RTOS_WAIT_MS(uint32_t x)
   {
-    vTaskDelay((x * configTICK_RATE_HZ) / 1000);
+    vTaskDelay(x * portTICK_PERIOD_MS);
   }
 
   static inline void RTOS_WAIT_TICKS(uint32_t x)

@@ -67,11 +67,13 @@ void loop() {
   //display.display();
 }
 
+extern RTOS_MUTEX_HANDLE spiMutex;
 void boardInit()
 {
   disableCore0WDT();
   disableCore1WDT();
 
+RTOS_CREATE_MUTEX(spiMutex);
 #ifdef ARDUINO_FEATHER_F405
 #else // default ESP32V2
   pinMode(NEOPIXEL_I2C_POWER, OUTPUT);

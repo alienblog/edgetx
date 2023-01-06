@@ -61,7 +61,7 @@ DSTATUS disk_status (
   return ff_sd_status(drv);
 }
 
-
+extern RTOS_MUTEX_HANDLE spiMutex;
 /*-----------------------------------------------------------------------*/
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
@@ -73,7 +73,9 @@ DRESULT disk_read (
         UINT count                      /* Sector count (1..255) */
 )
 {
+  RTOS_LOCK_MUTEX(spiMutex);
   DRESULT res = ff_sd_read(drv, buff, sector, count);
+  RTOS_UNLOCK_MUTEX(spiMutex);
   return res;
 }
 
@@ -84,7 +86,9 @@ DRESULT disk_write (
         UINT count                      /* Sector count (1..255) */
 )
 {
+  RTOS_LOCK_MUTEX(spiMutex);
   DRESULT res = ff_sd_write(drv, buff, sector, count);
+  RTOS_UNLOCK_MUTEX(spiMutex);
   return res;
 }
 
