@@ -38,6 +38,7 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer, const rec
     tft.drawPixels(p, copy_area.w, copy_area.x, y);
   }
   RTOS_UNLOCK_MUTEX(spiMutex);
+  lv_disp_flush_ready(disp_drv);
 }
 
 /*

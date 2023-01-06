@@ -25,6 +25,12 @@
 #include "Arduino.h"
 #include "sd_diskio.h"
 
+static bool card_present = true; // default to consider it as present until mount failed
+
+bool SD_CARD_PRESENT(void) {
+  return card_present;
+}
+
 static uint8_t sddisk = 0xFF;
 /*--------------------------------------------------------------------------
 
@@ -119,25 +125,24 @@ void sdPoll10ms()
 bool _g_FATFS_init = false;
 FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
 
+void sdMount()
+{
+  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
+    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
+    _g_FATFS_init = true;
+  } else {
+    card_present = false;
+  }
+}
+
+
 // TODO shouldn't be there!
 void sdInit(void)
 {
   SPI.begin();
   sddisk = sdcard_init(SDCARD_CS_GPIO, &SPI, 4000000);
   if (sddisk != 0xFF) {
-    //sdcard_mount(sddisk, "/", 5, true);
-    if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-      f_chdir("/");
-      _g_FATFS_init = true;
-    }
-  }
-}
-
-void sdMount()
-{
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
-    _g_FATFS_init = true;
+    sdMount();
   }
 }
 

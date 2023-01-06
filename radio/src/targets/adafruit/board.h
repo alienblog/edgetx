@@ -155,7 +155,7 @@ void sdMount();
 void sdDone();
 void sdPoll10ms();
 uint32_t sdMounted();
-#define SD_CARD_PRESENT()               false // TODO-feather
+bool SD_CARD_PRESENT(void);
 #endif
 
 // Flash Write driver
