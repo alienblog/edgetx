@@ -20,146 +20,111 @@
  */
 
 #include "opentx.h"
+#include "Arduino.h"
 #include "intmodule_serial_driver.h"
 
-typedef Fifo<uint8_t, INTMODULE_FIFO_SIZE> RxFifo;
-static RxFifo intmoduleFifo;
+HardwareSerial *intmod_uart = &Serial1;
 
-struct IntmoduleCtx
-{
-  RxFifo* rxFifo;
-#if 0
-  const stm32_usart_t* usart;
-#endif
-};
-
-static uint8_t * intmoduleTxBufferData;
-static volatile uint8_t intmoduleTxBufferRemaining;
-
-uint8_t intmoduleTxBufferSend(uint8_t* data)
-{
-  if (intmoduleTxBufferRemaining) {
-    *data = *(intmoduleTxBufferData++);
-    intmoduleTxBufferRemaining--;
-    return true;
+uint32_t get_ardu_serial_config(const etx_serial_init* params) {
+  uint32_t rvalue = 0;
+  if ((params->word_length == ETX_WordLength_8) &&
+      (params->parity == ETX_Parity_None) &&
+      (params->stop_bits == ETX_StopBits_One)) {
+    rvalue = SERIAL_8N1;
+  } else if ((params->word_length == ETX_WordLength_8) &&
+      (params->parity == ETX_Parity_Even) &&
+      (params->stop_bits == ETX_StopBits_One)) {
+    rvalue = SERIAL_8E1;
+  } else if ((params->word_length == ETX_WordLength_8) &&
+      (params->parity == ETX_Parity_Odd) &&
+      (params->stop_bits == ETX_StopBits_One)) {
+    rvalue = SERIAL_8O1;
+  } else if ((params->word_length == ETX_WordLength_8) &&
+      (params->parity == ETX_Parity_None) &&
+      (params->stop_bits == ETX_StopBits_Two)) {
+    rvalue = SERIAL_8N2;
+  } else if ((params->word_length == ETX_WordLength_8) &&
+      (params->parity == ETX_Parity_Even) &&
+      (params->stop_bits == ETX_StopBits_Two)) {
+    rvalue = SERIAL_8E2;
+  } else if ((params->word_length == ETX_WordLength_8) &&
+      (params->parity == ETX_Parity_Odd) &&
+      (params->stop_bits == ETX_StopBits_Two)) {
+    rvalue = SERIAL_8O2;
+  } else if ((params->word_length == ETX_WordLength_9) &&
+      (params->parity == ETX_Parity_None) &&
+      (params->stop_bits == ETX_StopBits_One)) {
+    rvalue = SERIAL_8N1;  // It seems Arduino does not support 9 bits?
+  } else if ((params->word_length == ETX_WordLength_9) &&
+      (params->parity == ETX_Parity_Even) &&
+      (params->stop_bits == ETX_StopBits_One)) {
+    rvalue = SERIAL_8E1;
+  } else if ((params->word_length == ETX_WordLength_9) &&
+      (params->parity == ETX_Parity_Odd) &&
+      (params->stop_bits == ETX_StopBits_One)) {
+    rvalue = SERIAL_8O1;
+  } else if ((params->word_length == ETX_WordLength_9) &&
+      (params->parity == ETX_Parity_None) &&
+      (params->stop_bits == ETX_StopBits_Two)) {
+    rvalue = SERIAL_8N2;
+  } else if ((params->word_length == ETX_WordLength_9) &&
+      (params->parity == ETX_Parity_Even) &&
+      (params->stop_bits == ETX_StopBits_Two)) {
+    rvalue = SERIAL_8E2;
+  } else if ((params->word_length == ETX_WordLength_9) &&
+      (params->parity == ETX_Parity_Odd) &&
+      (params->stop_bits == ETX_StopBits_Two)) {
+    rvalue = SERIAL_8O2;
   }
-
-  // buffer is empty
-  return false;
+  return rvalue;
 }
-
-static etx_serial_callbacks_t intmodule_driver = {
-  intmoduleTxBufferSend,
-  nullptr, nullptr
-};
-
-// TODO: move this somewhere else
-static void intmoduleFifoReceive(uint8_t data)
-{
-  intmoduleFifo.push(data);
-}
-
-void intmoduleStop()
-{
-  INTERNAL_MODULE_OFF();
-#if 0
-  stm32_usart_deinit(&intmoduleUSART);
-
-  // reset callbacks
-  intmodule_driver.on_receive = nullptr;
-  intmodule_driver.on_error = nullptr;
-#endif
-}
-
-static const IntmoduleCtx intmoduleCtx = {
-  .rxFifo = &intmoduleFifo,
-#if 0
-  .usart = &intmoduleUSART,
-#endif
-};
-
-static void intmoduleStop(void* ctx)
-{
-  (void)ctx;
-  intmoduleStop();
-}
-
 void* intmoduleSerialStart(const etx_serial_init* params)
 {
   if (!params) return nullptr;
-#if 0
-  // TODO: sanity check parameters
-  //  - the UART seems to block when initialised with baudrate = 0
-
-  // init callbacks
-#if !defined(INTMODULE_RX_DMA)
-  intmodule_driver.on_receive = intmoduleFifoReceive;
-#else
-  intmodule_driver.on_receive = nullptr;
-#endif
-  intmodule_driver.on_error = nullptr;
-
-  stm32_usart_init(&intmoduleUSART, params);
-
-  if (params->rx_enable && intmoduleUSART.rxDMA) {
-    stm32_usart_init_rx_dma(&intmoduleUSART, intmoduleFifo.buffer(), intmoduleFifo.size());
-  }  
-  intmoduleCtx.rxFifo->clear();
-#endif
-  return (void*)&intmoduleCtx;
+  intmod_uart->begin(params->baudrate, get_ardu_serial_config(params));
+  return (void*)intmod_uart;
 }
-#if 0
-#define USART_FLAG_ERRORS (USART_FLAG_ORE | USART_FLAG_NE | USART_FLAG_FE | USART_FLAG_PE)
-extern "C" void INTMODULE_USART_IRQHandler(void)
-{
-  stm32_usart_isr(&intmoduleUSART, &intmodule_driver);
-}
-#endif
+
 void intmoduleSendByte(void* ctx, uint8_t byte)
 {
-#if 0
-  auto modCtx = (IntmoduleCtx*)ctx;
-  stm32_usart_send_byte(modCtx->usart, byte);
-#endif
+  HardwareSerial *uart = (HardwareSerial *)ctx;
+  uart->write(byte);
 }
 
 void intmoduleSendBuffer(void* ctx, const uint8_t * data, uint8_t size)
 {
-  auto modCtx = (IntmoduleCtx*)ctx;
-  if (size == 0)
-    return;
-
-#if !defined(INTMODULE_DMA_STREAM)
-  intmoduleTxBufferData = (uint8_t *)data;
-  intmoduleTxBufferRemaining = size;
-#endif
-#if 0
-  stm32_usart_send_buffer(modCtx->usart, data, size);
-#endif
+  HardwareSerial *uart = (HardwareSerial *)ctx;
+  uart->write(data, size);
 }
 
 void intmoduleWaitForTxCompleted(void* ctx)
 {
-  while (intmoduleTxBufferRemaining > 0);
 }
 
 static int intmoduleGetByte(void* ctx, uint8_t* data)
 {
-  auto modCtx = (IntmoduleCtx*)ctx;
-  if (!modCtx->rxFifo) return -1;
-  return modCtx->rxFifo->pop(*data);
+  HardwareSerial *uart = (HardwareSerial *)ctx;
+  return (int)uart->read(data, 1);
 }
 
 static void intmoduleClearRxBuffer(void* ctx)
 {
-  auto modCtx = (IntmoduleCtx*)ctx;
-  if (!modCtx->rxFifo) return;
-  modCtx->rxFifo->clear();
+}
+
+static void intmoduleSerialStop(void* ctx)
+{
+  HardwareSerial *uart = (HardwareSerial *)ctx;
+  uart->end();
+}
+
+void intmoduleStop()
+{
+  intmoduleSerialStop(intmod_uart);
 }
 
 const etx_serial_driver_t IntmoduleSerialDriver = {
   .init = intmoduleSerialStart,
-  .deinit = intmoduleStop,
+  .deinit = intmoduleSerialStop,
   .sendByte = intmoduleSendByte,
   .sendBuffer = intmoduleSendBuffer,
   .waitForTxCompleted = intmoduleWaitForTxCompleted,
