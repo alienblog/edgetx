@@ -429,9 +429,11 @@ void menuRadioSdManager(event_t _event)
 #endif
 #if defined(PCB_ARDUINO) || defined(PCBTARANIS)
           if (!READ_ONLY() && !strcasecmp(ext, FIRMWARE_EXT)) {
+#if !defined(PCB_ARDUINO)
             if (isBootloader(lfn)) {
               POPUP_MENU_ADD_ITEM(STR_FLASH_BOOTLOADER);
             }
+#endif
           }
           else if (!READ_ONLY() && !strcasecmp(ext, SPORT_FIRMWARE_EXT)) {
             if (HAS_SPORT_UPDATE_CONNECTOR())

@@ -67,7 +67,7 @@ DSTATUS disk_status (
   return ff_sd_status(drv);
 }
 
-extern RTOS_MUTEX_HANDLE spiMutex;
+RTOS_MUTEX_HANDLE spiMutex;
 /*-----------------------------------------------------------------------*/
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/

@@ -28,7 +28,7 @@
 Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 
 bool lcdInitFinished = false;
-RTOS_MUTEX_HANDLE spiMutex;
+extern RTOS_MUTEX_HANDLE spiMutex;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer, const rect_t &copy_area)
 {

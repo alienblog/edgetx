@@ -47,6 +47,10 @@ static void task5ms(void * pdata) {
 
   while (true) {
     if (xSemaphoreTake(sem5ms, portMAX_DELAY)) {
+#if defined(COLORLCD)
+      lv_tick_inc(5);
+#endif
+
       ++pre_scale;
 
       if (pre_scale == 2) {
