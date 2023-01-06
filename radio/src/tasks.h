@@ -31,7 +31,7 @@
   #define MENUS_STACK_SIZE     8000
 #endif
 #define MIXER_STACK_SIZE       4000
-#define AUDIO_STACK_SIZE       1000
+#define AUDIO_STACK_SIZE       8000
 #define CLI_STACK_SIZE         1024  // only consumed with CLI build option
 #if defined(RTOS_FREERTOS)  // This is the Arduino version of FreeRTOS
 #define MIXER_TASK_PRIO        (tskIDLE_PRIORITY + 4)

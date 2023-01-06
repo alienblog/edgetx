@@ -623,7 +623,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
         processMultiTelemetryData(data, module);
       }
       else {
-        TRACE("[MP] invalid start byte 0x%02X", data);
+        //TRACE("[MP] invalid start byte 0x%02X", data);
       }
       break;
 
@@ -678,7 +678,7 @@ void processMultiTelemetryData(uint8_t data, uint8_t module)
         processMultiTelemetryData(data, module);
       }
       else {
-        TRACE("[MP] invalid second byte 0x%02X", data);
+        //TRACE("[MP] invalid second byte 0x%02X", data);
         setMultiTelemetryBufferState(module, NoProtocolDetected);
       }
       break;
