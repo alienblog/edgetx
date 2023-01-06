@@ -281,13 +281,13 @@ void check_telemetry_exti();
 #define AUDIO_TASK_CORE 0
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
-#define RMT_TX_PIN 13
-#define TRAINER_IN_GPIO 12
+#define RMT_TX_PIN 15
+#define TRAINER_IN_GPIO 34
 #define SDCARD_CS_GPIO 4
 #define FLYSKY_UART_RX_PIN 37
 
-#define RA8875_CS 14
-#define RA8875_RESET 13 // TODO-feather
+#define RA8875_CS 12
+#define RA8875_RESET 32 // TODO-feather
 
 #else
 #endif

@@ -28,16 +28,18 @@
 Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 
 bool lcdInitFinished = false;
-extern RTOS_MUTEX_HANDLE spiMutex;
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer, const rect_t &copy_area)
 {
-  RTOS_LOCK_MUTEX(spiMutex);
+#if 1
+  uint16_t * p = buffer;
   for (int y = 0; y < copy_area.h; y++) {
-    uint16_t * p = &buffer[copy_area.w * y];
     tft.drawPixels(p, copy_area.w, copy_area.x, y);
+    p += copy_area.w;
   }
-  RTOS_UNLOCK_MUTEX(spiMutex);
+#else
+  tft.drawPixels(buffer, copy_area.w * copy_area.h, copy_area.x, copy_area.y);
+#endif
   lv_disp_flush_ready(disp_drv);
 }
 
@@ -160,29 +162,26 @@ struct TouchState getInternalTouchState() {
 }
 
 struct TouchState touchPanelRead() {
-  RTOS_LOCK_MUTEX(spiMutex);
   if (tft.touched())
   {
     uint16_t tx, ty;
     float xScale = 1024.0F/tft.width();
     float yScale = 1024.0F/tft.height();
     tft.touchRead(&tx, &ty);
-
+    //TRACE("+++++++++++%s %d %d", __FUNCTION__, tx, ty);
     internalTouchState.x = (uint16_t)(tx/xScale);
     internalTouchState.y = (uint16_t)(ty/yScale);
     internalTouchState.event = TE_DOWN;
   } else {
     internalTouchState.event = TE_UP;
   }
-  RTOS_UNLOCK_MUTEX(spiMutex);
   return internalTouchState;
 }
 
 bool touchPanelEventOccured() {
   bool r = false;
-  RTOS_LOCK_MUTEX(spiMutex);
   r = tft.touched();
-  RTOS_UNLOCK_MUTEX(spiMutex);
+  //TRACE("+++++++++++%s %d", __FUNCTION__, r);
   return r;
 }
 
