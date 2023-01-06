@@ -849,7 +849,7 @@ void checkThrottleStick()
     auto dialog =
         new FullScreenDialog(WARNING_TYPE_ALERT, TR_THROTTLE_UPPERCASE,
                              throttleNotIdle, STR_PRESS_ANY_KEY_TO_SKIP);
-    dialog->setCloseCondition([]() { return !isThrottleWarningAlertNeeded(); });
+    dialog->setCloseCondition([]() { return (!isThrottleWarningAlertNeeded() || keyDown()); });
     dialog->runForever();
     LED_ERROR_END();
   }

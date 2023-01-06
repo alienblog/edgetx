@@ -159,7 +159,7 @@ class Theme480: public OpenTxTheme
       if (strcmp(backgroundImageFileName, fileName) != 0 && backgroundBitmap != nullptr)
         delete backgroundBitmap;
       OpenTxTheme::setBackgroundImageFileName(fileName);  // set the filename
-      //backgroundBitmap = BitmapBuffer::loadBitmap(backgroundImageFileName);
+      backgroundBitmap = BitmapBuffer::loadBitmap(backgroundImageFileName);
     }
 
     void load() const override
@@ -168,7 +168,7 @@ class Theme480: public OpenTxTheme
       ThemePersistance::instance()->loadDefaultTheme();
       OpenTxTheme::load();
       if (!backgroundBitmap) {
-        //backgroundBitmap = BitmapBuffer::loadBitmap(getFilePath("background.png"));
+        backgroundBitmap = BitmapBuffer::loadBitmap(getFilePath("background.png"));
       }
       update();
     }

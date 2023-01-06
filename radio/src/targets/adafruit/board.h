@@ -310,8 +310,6 @@ enum EnumKeys
   KEY_PGUP,
   KEY_PGDN,
   KEY_TELEM,
-  KEY_RADIO,
-  KEY_MODEL,
 
   KEY_COUNT,
   KEY_MAX = KEY_COUNT - 1,
@@ -330,23 +328,9 @@ enum EnumKeys
   NUM_KEYS
 };
 
-#if defined(PCBX9E) && !defined(SIMU)
-  #define KEY_UP                        KEY_MINUS
-  #define KEY_DOWN                      KEY_PLUS
-  #define KEY_RIGHT                     KEY_PLUS
-  #define KEY_LEFT                      KEY_MINUS
-#elif defined(NAVIGATION_XLITE)
-  #define KEY_PLUS                      KEY_RIGHT
-  #define KEY_MINUS                     KEY_LEFT
-#elif defined(NAVIGATION_9X)
-  #define KEY_MENU                      KEY_ENTER
-  #define KEY_MINUS                     KEY_DOWN
-  #define KEY_PLUS                      KEY_UP
-#else
-  #define KEY_UP                        KEY_PLUS
-  #define KEY_DOWN                      KEY_MINUS
-  #define KEY_RIGHT                     KEY_MINUS
-  #define KEY_LEFT                      KEY_PLUS
+#if defined(COLORLCD)
+  #define KEY_RADIO                     KEY_RIGHT
+  #define KEY_MODEL                     KEY_ENTER
 #endif
 
 #if defined(KEYS_GPIO_PIN_SHIFT)

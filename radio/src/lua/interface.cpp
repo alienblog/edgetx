@@ -674,7 +674,7 @@ static bool luaLoadTelemetryScript(uint8_t ref)
 
 bool isTelemetryScriptAvailable()
 {
-#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
+#if (defined(PCB_ARDUINO) && !defined(COLORLCD)) || defined(PCBTARANIS)
   for (int i = 0; i < luaScriptsCount; i++) {
     ScriptInternalData & sid = scriptInternalData[i];
     if (sid.reference == SCRIPT_TELEMETRY_FIRST + s_frsky_view) {
@@ -1069,7 +1069,7 @@ static bool resumeLua(bool init, bool allowLcdUsage)
             lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
           }
         }
-#if defined(PCB_ARDUINO) || defined(PCBTARANIS)
+#if (defined(PCB_ARDUINO) && !defined(COLORLCD)) || defined(PCBTARANIS)
         else if (ref <= SCRIPT_TELEMETRY_LAST) {
           if (sid.background == LUA_NOREF) continue;
           lua_rawgeti(lsScripts, LUA_REGISTRYINDEX, sid.background);
