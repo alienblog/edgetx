@@ -263,7 +263,6 @@ set(TARGET_SRC
   ${TARGET_SRC}
   ${LED_DRIVER}
   ${AUX_SERIAL_DRIVER}
-  backlight_driver.cpp
   trainer_driver.cpp
   ${LCD_DRIVER}
   haptic_driver.cpp

@@ -120,3 +120,25 @@ void lcdInitFinish()
 void lcdSetRefVolt(uint8_t val)
 {
 }
+
+static bool bkl_enabled = false;
+void backlightInit() {
+  backlightEnable(BACKLIGHT_LEVEL_MAX);
+}
+
+void backlightEnable(uint8_t level) {
+  static uint16_t prev_level = 0;
+  const uint16_t offset = 200;
+  uint16_t l = (((uint16_t)level) * (10 - offset) / BACKLIGHT_LEVEL_MAX) + offset;
+  if (l != prev_level) {
+    display.setContrast(l);
+    prev_level = l;
+  }
+  bkl_enabled = true;
+}
+
+void backlightDisable() {
+  display.setContrast(1);
+  bkl_enabled = false;
+}
+uint8_t isBacklightEnabled() {return bkl_enabled;}

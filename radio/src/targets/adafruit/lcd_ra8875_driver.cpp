@@ -69,8 +69,6 @@ void lcdInit()
   }
   tft.displayOn(true);
   tft.GPIOX(true);      // Enable TFT - display enable tied to GPIOX
-  tft.PWM1config(true, RA8875_PWM_CLK_DIV1024); // PWM output for backlight
-  tft.PWM1out(255);
 
   Serial.print("(");
   Serial.print(tft.width());
@@ -161,28 +159,42 @@ struct TouchState getInternalTouchState() {
   return internalTouchState;
 }
 
+static int state = 0;
+
 struct TouchState touchPanelRead() {
-  if (tft.touched())
-  {
-    uint16_t tx, ty;
+  uint16_t tx = 0, ty = 0;
+
+  tft.touchRead(&tx, &ty);
+  if (state == 1) {
     float xScale = 1024.0F/tft.width();
     float yScale = 1024.0F/tft.height();
-    tft.touchRead(&tx, &ty);
-    //TRACE("+++++++++++%s %d %d", __FUNCTION__, tx, ty);
     internalTouchState.x = (uint16_t)(tx/xScale);
     internalTouchState.y = (uint16_t)(ty/yScale);
     internalTouchState.event = TE_DOWN;
   } else {
     internalTouchState.event = TE_UP;
   }
+
   return internalTouchState;
 }
 
 bool touchPanelEventOccured() {
-  bool r = false;
-  r = tft.touched();
-  //TRACE("+++++++++++%s %d", __FUNCTION__, r);
-  return r;
+  bool ret = tft.touched();
+  static uint32_t event_ms = 0;
+
+  if (state == 1) {
+    if (RTOS_GET_MS() - event_ms > 600) { // assume each touch takes 600ms
+      state = 0;
+      ret = true;
+    }
+  } else {
+    if (tft.touched()) {
+      state = 1;
+      event_ms = RTOS_GET_MS();
+      ret = true;
+    }
+  }
+  return ret;
 }
 
 bool touchPanelInit(void) {
@@ -197,3 +209,26 @@ bool touchPanelInit(void) {
 
   return true;
 }
+
+static bool bkl_enabled = false;
+void backlightInit() {
+  tft.PWM1config(true, RA8875_PWM_CLK_DIV1024); // PWM output for backlight
+  backlightEnable(BACKLIGHT_LEVEL_MAX);
+}
+
+void backlightEnable(uint8_t level) {
+  static uint16_t prev_level = 0;
+  const uint16_t offset = 200;
+  uint16_t l = (((uint16_t)level) * (255 - offset) / BACKLIGHT_LEVEL_MAX) + offset;
+  if (l != prev_level) {
+    tft.PWM1out(l);
+    prev_level = l;
+  }
+  bkl_enabled = true;
+}
+
+void backlightDisable() {
+  tft.PWM1out(0);
+  bkl_enabled = false;
+}
+uint8_t isBacklightEnabled() {return bkl_enabled;}
