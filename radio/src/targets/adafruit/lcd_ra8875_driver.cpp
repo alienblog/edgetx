@@ -25,7 +25,7 @@
 #include <Adafruit_GFX.h>
 #include "Adafruit_RA8875.h"
 
-Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
+static Adafruit_RA8875 tft = Adafruit_RA8875(RA8875_CS, RA8875_RESET);
 
 bool lcdInitFinished = false;
 
@@ -34,7 +34,7 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer, const rec
 #if 1
   uint16_t * p = buffer;
   for (int y = 0; y < copy_area.h; y++) {
-    tft.drawPixels(p, copy_area.w, copy_area.x, y);
+    tft.drawPixels(p, copy_area.w, copy_area.x, copy_area.y + y);
     p += copy_area.w;
   }
 #else
@@ -162,35 +162,37 @@ struct TouchState getInternalTouchState() {
 static int state = 0;
 
 struct TouchState touchPanelRead() {
-  uint16_t tx = 0, ty = 0;
-
-  tft.touchRead(&tx, &ty);
-  if (state == 1) {
-    float xScale = 1024.0F/tft.width();
-    float yScale = 1024.0F/tft.height();
-    internalTouchState.x = (uint16_t)(tx/xScale);
-    internalTouchState.y = (uint16_t)(ty/yScale);
-    internalTouchState.event = TE_DOWN;
-  } else {
-    internalTouchState.event = TE_UP;
-  }
-
   return internalTouchState;
 }
 
 bool touchPanelEventOccured() {
-  bool ret = tft.touched();
-  static uint32_t event_ms = 0;
+  bool ret = false;
 
-  if (state == 1) {
-    if (RTOS_GET_MS() - event_ms > 600) { // assume each touch takes 600ms
-      state = 0;
+  uint16_t tx = 0, ty = 0;
+  int ra_int = digitalRead(RA8875_INT);
+
+  if (!ra_int) {
+    tft.touchRead(&tx, &ty);
+    float xScale = 1024.0F/tft.width();
+    float yScale = 1024.0F/tft.height();
+    uint16_t rx = (uint16_t)(tx/xScale);
+    uint16_t ry = (uint16_t)(ty/yScale);
+    if (internalTouchState.event == TE_UP) {
+      internalTouchState.x = rx;
+      internalTouchState.y = ry;
+      internalTouchState.event = TE_DOWN;
       ret = true;
+    } else if ((internalTouchState.event == TE_DOWN) || (internalTouchState.event == TE_SLIDE)) {
+      if (abs(rx - internalTouchState.x) > 5 || abs(ry - internalTouchState.y) > 3) {
+        internalTouchState.event = TE_SLIDE;
+        internalTouchState.x = rx;
+        internalTouchState.y = ry;
+        ret = true;
+      }
     }
   } else {
-    if (tft.touched()) {
-      state = 1;
-      event_ms = RTOS_GET_MS();
+    if (internalTouchState.event != TE_UP) {
+      internalTouchState.event = TE_UP;
       ret = true;
     }
   }
@@ -205,6 +207,8 @@ bool touchPanelInit(void) {
     }
     lcdInitFinished = true;
   }
+  internalTouchState.event = TE_UP;
+  pinMode(RA8875_INT, INPUT);
   tft.touchEnable(true);
 
   return true;
@@ -219,7 +223,7 @@ void backlightInit() {
 void backlightEnable(uint8_t level) {
   static uint16_t prev_level = 0;
   const uint16_t offset = 200;
-  uint16_t l = (((uint16_t)level) * (255 - offset) / BACKLIGHT_LEVEL_MAX) + offset;
+  uint16_t l = 255;//(((uint16_t)level) * (255 - offset) / BACKLIGHT_LEVEL_MAX) + offset;
   if (l != prev_level) {
     tft.PWM1out(l);
     prev_level = l;
@@ -228,7 +232,7 @@ void backlightEnable(uint8_t level) {
 }
 
 void backlightDisable() {
-  tft.PWM1out(0);
+  //tft.PWM1out(0);
   bkl_enabled = false;
 }
 uint8_t isBacklightEnabled() {return bkl_enabled;}

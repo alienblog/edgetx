@@ -288,6 +288,7 @@ void check_telemetry_exti();
 
 #define RA8875_CS 12
 #define RA8875_RESET 32 // TODO-feather
+#define RA8875_INT 36
 
 #else
 #endif
@@ -307,8 +308,6 @@ enum EnumKeys
   BUTTONS_ON_GPIOA,
   KEY_LEFT = BUTTONS_ON_GPIOA,
   KEY_BIND,
-  KEY_PGUP,
-  KEY_PGDN,
   KEY_TELEM,
 
   KEY_COUNT,
@@ -328,9 +327,14 @@ enum EnumKeys
   NUM_KEYS
 };
 
+#define KEYS_GPIO_REG_PGUP
+#define KEYS_GPIO_REG_PGDN
+
 #if defined(COLORLCD)
   #define KEY_RADIO                     KEY_RIGHT
   #define KEY_MODEL                     KEY_ENTER
+  #define KEY_PGUP                      KEY_UP
+  #define KEY_PGDN                      KEY_DOWN
 #endif
 
 #if defined(KEYS_GPIO_PIN_SHIFT)
