@@ -1239,7 +1239,7 @@ const char* mm_options_strings::options[] = {
   STR_MULTI_WBUS
 };
 
-const uint8_t getMaxMultiOptions()
+uint8_t getMaxMultiOptions()
 {
   return DIM(mm_options_strings::options);
 }
