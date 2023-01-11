@@ -66,6 +66,7 @@ extern BitmapBuffer * lcd;
 static lv_disp_drv_t disp_drv;
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_t* disp = nullptr;
+static lv_indev_drv_t indev_drv;
 void lcdInitDisplayDriver()
 {
     lv_init();
@@ -135,6 +136,11 @@ void lcdInitDisplayDriver()
   //lcdFront = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
   lcd = new BitmapBuffer(BMP_RGB565, LCD_W, LCD_H);
 #endif
+
+  lv_indev_drv_init(&indev_drv);
+  indev_drv.read_cb = touch_driver_read;
+  indev_drv.type = LV_INDEV_TYPE_POINTER;
+  lv_indev_drv_register(&indev_drv);
 }
 
 #define DISPBUF_LINES (DISP_BUF_SIZE / LV_HOR_RES_MAX)
