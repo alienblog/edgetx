@@ -281,14 +281,20 @@ void check_telemetry_exti();
 #define AUDIO_TASK_CORE 0
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
-#define RMT_TX_PIN 15
+/*
+  LCD MOSI 33
+  LCD MISO 39
+  LCD SCK 15
+  LCD CS 12
+  LCD DC 27
+  Backlight 32
+  Touch CS 14
+  Touch IRQ 36
+*/
+#define RMT_TX_PIN 13 // ?
 #define TRAINER_IN_GPIO 34
 #define SDCARD_CS_GPIO 4
 #define FLYSKY_UART_RX_PIN 37
-
-#define RA8875_CS 12
-#define RA8875_RESET 32 // TODO-feather
-#define RA8875_INT 36
 
 #else
 #endif
@@ -947,7 +953,11 @@ void fsLedOn(uint8_t);
 void lcdRefresh(bool wait=true); // TODO uint8_t wait to simplify this
 #else
 #define LCD_W                           480
+#if defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488
+#define LCD_H                           320
+#else
 #define LCD_H                           272
+#endif
 #define LCD_DEPTH                       16
 void lcdRefresh();
 bool touchPanelInit(void);

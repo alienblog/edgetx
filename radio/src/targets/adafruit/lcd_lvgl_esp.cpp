@@ -73,13 +73,20 @@ void lcdInitDisplayDriver()
 
     /* Initialize SPI or I2C bus used by the drivers */
     lvgl_driver_init();
-
+#if defined(CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488)
+    lv_color_t* buf1 = (lv_color_t*)malloc(DISP_BUF_SIZE * sizeof(lv_color_t));
+#else
     lv_color_t* buf1 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+#endif
     assert(buf1 != NULL);
 
     /* Use double buffered when not working with monochrome displays */
 #ifndef CONFIG_LV_TFT_DISPLAY_MONOCHROME
+#if defined(CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488)
+    lv_color_t* buf2 = (lv_color_t*)malloc(DISP_BUF_SIZE * sizeof(lv_color_t));
+#else
     lv_color_t* buf2 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+#endif
     assert(buf2 != NULL);
 #else
     static lv_color_t *buf2 = NULL;

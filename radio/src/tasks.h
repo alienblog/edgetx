@@ -26,7 +26,7 @@
 
 // stack sizes should be in multiples of 8 for better alignment
 #if defined (COLORLCD)
-  #define MENUS_STACK_SIZE     20000
+  #define MENUS_STACK_SIZE     10000
 #else
   #define MENUS_STACK_SIZE     8000
 #endif
