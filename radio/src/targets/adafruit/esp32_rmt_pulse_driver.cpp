@@ -65,7 +65,7 @@ static void esp32_rmt_rx_cb(uint32_t *data, size_t len, void *arg) {
     }
 }
 
-rmt_ctx_t *esp32_rmt_rx_init(int pin, rmt_reserve_memsize_t memsize, float tick_in_ns, rmt_rx_decode_cb_t dec_fn, size_t pulse_in_frame, size_t idle_threshold_in_ns) {
+rmt_ctx_t *esp32_rmt_rx_init(int pin, rmt_reserve_memsize_t memsize, float tick_in_ns, rmt_rx_decode_cb_t dec_fn, size_t pulse_in_frame, size_t idle_threshold_in_ns, size_t min_pulse_in_ns) {
     rmt_ctx_t *rvalue = (rmt_ctx_t *)malloc(sizeof(rmt_ctx_t));
 
     if (NULL != rvalue) {
@@ -75,7 +75,9 @@ rmt_ctx_t *esp32_rmt_rx_init(int pin, rmt_reserve_memsize_t memsize, float tick_
         if (NULL != rvalue->rmt) {
             rvalue->tick_in_ns = rmtSetTick(rvalue->rmt, tick_in_ns);
             rmtSetRxThreshold(rvalue->rmt, idle_threshold_in_ns / rvalue->tick_in_ns);
-
+            if (0U != min_pulse_in_ns) {
+                rmtSetFilter(rvalue->rmt, true, min_pulse_in_ns / rvalue->tick_in_ns);
+            }
             rmtRead(rvalue->rmt, esp32_rmt_rx_cb, rvalue);
         } else {
             free(rvalue);

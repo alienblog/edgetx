@@ -127,7 +127,9 @@ void flysky_hall_stick_init()
     25,
     flysky_hall_stick_decode_cb,
     142,  // 14bytes of 8n1, total maximum of 140 pulses
-    1000000);
+    1000000,
+    900 // FlySky hall stick communicates at a little bit less that 1Mbps. So minimum pulse is around 1000ns
+    );
   reset_hall_stick();
 }
 

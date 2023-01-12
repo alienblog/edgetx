@@ -24,7 +24,7 @@ struct _rmt_ctx_ {
 };
 
 rmt_ctx_t *esp32_rmt_tx_init(int pin, rmt_reserve_memsize_t memsize, float tick_in_ns, rmt_tx_encode_cb_t enc_fn, size_t pulse_in_frame);
-rmt_ctx_t *esp32_rmt_rx_init(int pin, rmt_reserve_memsize_t memsize, float tick_in_ns, rmt_rx_decode_cb_t dec_fn, size_t pulse_in_frame, size_t idle_threshold_in_ns);
+rmt_ctx_t *esp32_rmt_rx_init(int pin, rmt_reserve_memsize_t memsize, float tick_in_ns, rmt_rx_decode_cb_t dec_fn, size_t pulse_in_frame, size_t idle_threshold_in_ns, size_t min_pulse_in_ns = 0);
 void esp32_rmt_stop(rmt_ctx_t *ctx);
 
 // return number of channel decoded
