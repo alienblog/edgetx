@@ -153,12 +153,9 @@ void lcdInitDisplayDriver()
 #define DISPBUF_LINES (DISP_BUF_SIZE / LV_HOR_RES_MAX)
 #define PIXEL_EACHBLOCK (LV_HOR_RES_MAX * DISPBUF_LINES)
 void lcdRefresh() {
-  // Not really needed, since bitmap buffer draws through LVGL canvas with the "lcd" as dynamically allocated buffer
-  TRACE("++++++++++=-------------------------------%s", __FUNCTION__);
-#if 0
-  lv_color_t *p = NULL;//(lv_color_t *)lcd->getData();
+  lv_color_t *p = (lv_color_t *)lcd->getData();
   lv_area_t area = {.x1 = 0, .y1 = 0, .x2 = LV_HOR_RES_MAX - 1, .y2 = DISPBUF_LINES - 1};
-  while (area.y2 < LV_VER_RES_MAX - 1) {
+  while (area.y2 < LV_VER_RES_MAX) {
     int lines = LV_VER_RES_MAX - area.y1;
     if (lines > DISPBUF_LINES) lines = DISPBUF_LINES;
 
@@ -167,7 +164,6 @@ void lcdRefresh() {
     area.y2 += lines;
     p += PIXEL_EACHBLOCK; // OK to be added pass the end at the end of drawing
   }
-#endif
 }
 
 void lcdInitDirectDrawing() {
