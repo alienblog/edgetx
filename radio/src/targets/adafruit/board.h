@@ -558,37 +558,10 @@ enum Analogs {
   NUM_ANALOGS
 };
 
-#if defined(PCBX9LITE)
-  #define NUM_POTS                      1
-  #define NUM_SLIDERS                   0
-  #define STORAGE_NUM_POTS              1
-  #define STORAGE_NUM_SLIDERS           0
-#elif defined(RADIO_T8) || defined(RADIO_TLITE)
-  #define NUM_POTS                      0
-  #define NUM_SLIDERS                   0
-  #define STORAGE_NUM_POTS              2
-  #define STORAGE_NUM_SLIDERS           0
-#elif defined(PCB_ARDUINO) || defined(PCBXLITE) || defined(PCBX7)
   #define NUM_POTS                      2
   #define NUM_SLIDERS                   0
   #define STORAGE_NUM_POTS              2
   #define STORAGE_NUM_SLIDERS           0
-#elif defined(PCBX9E)
-  #define NUM_POTS                      4
-  #define NUM_SLIDERS                   4
-  #define STORAGE_NUM_POTS              4
-  #define STORAGE_NUM_SLIDERS           4
-#elif defined(PCBX9DP)
-  #define NUM_POTS                      3
-  #define NUM_SLIDERS                   2
-  #define STORAGE_NUM_POTS              3
-  #define STORAGE_NUM_SLIDERS           2
-#else
-  #define NUM_POTS                      3 // TODO X9D has only 2 pots
-  #define NUM_SLIDERS                   2
-  #define STORAGE_NUM_POTS              3
-  #define STORAGE_NUM_SLIDERS           2
-#endif
 
 #define NUM_XPOTS                       0 //STORAGE_NUM_POTS
 #define NUM_TRIMS                       4
