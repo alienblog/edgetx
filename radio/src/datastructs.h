@@ -141,7 +141,7 @@ static inline void check_struct()
   CHKSIZE(ModelData, 6165);
 #elif defined(PCB_ARDUINO) && defined(COLORLCD)
   CHKSIZE(RadioData, 953);
-  CHKSIZE(ModelData, 11067);
+  CHKSIZE(ModelData, 11211);
 #elif defined(PCB_ARDUINO) || defined(PCBX7)
   CHKSIZE(RadioData, 866);
   CHKSIZE(ModelData, 6164);

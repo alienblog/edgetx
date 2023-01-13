@@ -926,8 +926,8 @@ void fsLedOn(uint8_t);
 void lcdRefresh(bool wait=true); // TODO uint8_t wait to simplify this
 #else
 #if defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488
-#define LCD_H                           480
-#define LCD_W                           320
+#define LCD_W                           480
+#define LCD_H                           320
 #else
 #define LCD_W                           480
 #define LCD_H                           272
