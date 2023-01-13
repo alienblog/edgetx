@@ -130,6 +130,7 @@ void sdMount()
   if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
     // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
     _g_FATFS_init = true;
+    card_present = true;
   } else {
     card_present = false;
   }
