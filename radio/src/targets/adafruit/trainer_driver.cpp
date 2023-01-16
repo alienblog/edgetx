@@ -81,7 +81,7 @@ static size_t esp32_rmt_ppm_encode_cb(rmt_ctx_t *ctx) {
 
 void init_trainer_ppm()
 {
-#if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
+#if 0 //defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
     rmt_send = esp32_rmt_tx_init(RMT_TX_PIN, RMT_MEM_64,
             RMT_PPM_OUT_TICK_NS,
             esp32_rmt_ppm_encode_cb,

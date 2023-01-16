@@ -171,7 +171,7 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   static inline void RTOS_START() {}
 
   #define RTOS_CREATE_TASK(taskId, task, name, stackStruct, stackSize, priority)   \
-        xTaskCreatePinnedToCore(task, name, stackSize, NULL, priority, &taskId.rtos_handle, 0)
+        xTaskCreatePinnedToCore(task, name, stackSize, NULL, priority, &taskId.rtos_handle, 1)
   #define RTOS_CREATE_TASK_EX(taskId, task, name, stackStruct, stackSize, priority, core)   \
         xTaskCreatePinnedToCore(task, name, stackSize, NULL, priority, &taskId.rtos_handle, core)
 #endif

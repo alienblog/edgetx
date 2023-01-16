@@ -21,29 +21,39 @@
 #include "opentx.h"
 #include "Arduino.h"
 #include "hal/adc_driver.h"
+#include "Adafruit_ADS1X15.h"
 
-uint8_t adcPins[] = {A0, A1};
+static uint16_t mux[] = {ADS1X15_REG_CONFIG_MUX_SINGLE_0, ADS1X15_REG_CONFIG_MUX_SINGLE_1,
+    ADS1X15_REG_CONFIG_MUX_SINGLE_2, ADS1X15_REG_CONFIG_MUX_SINGLE_3};
+static uint8_t currentAdcPin = 0;
+static Adafruit_ADS1015 ads1015;
+
 static bool arduino_hal_adc_init()
 {
-  //for (int i = 0; i < sizeof(adcPins)/sizeof(adcPins[0]); i++) {
-    //adcAttachPin(adcPins[i]);
-  //}
-  //analogReadResolution(12);
+  ads1015.begin();
+  ads1015.startADCReading(mux[currentAdcPin], false);
 
   // TODO-feather: give those channels a default value, in case the FLySky Hall Gimbals were not connected
   adcValues[0] = 500;
   adcValues[1] = 500;
   adcValues[2] = 500;
   adcValues[3] = 500;
+  adcValues[4] = 500;
+  adcValues[5] = 500;
   return true;
 }
 
 static bool arduino_hal_adc_start_read()
 {
-  //for (int i = 0; i < sizeof(adcPins)/sizeof(adcPins[0]); i++) {
-    //int analogValue = analogRead(adcPins[i]);
-    //adcValues[i + 4] = analogReadMilliVolts(adcPins[i]);  // first 4 are the FlySky Hall Gimbals
-  //}
+  if (ads1015.conversionComplete()) {
+    adcValues[4 + currentAdcPin] = ads1015.getLastConversionResults();
+    //TRACE("+++++ADS1015 pin %d reading %d", currentAdcPin, adcValues[4 + currentAdcPin]);
+    currentAdcPin++;
+    if (currentAdcPin >= sizeof(mux)/sizeof(mux[0])) {
+      currentAdcPin = 0;
+    }
+    ads1015.startADCReading(mux[currentAdcPin], false);
+  }
   return true;
 }
 

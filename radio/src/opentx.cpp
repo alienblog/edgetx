@@ -1887,7 +1887,7 @@ int main()
   }
 #endif
 
-#if defined(COLORLCD) && !defined(PCB_ARDUINO)
+#if defined(COLORLCD)
   // SD_CARD_PRESENT() does not work properly on most
   // B&W targets, so that we need to delay the detection
   // until the SD card is mounted (requires RTOS scheduler running)

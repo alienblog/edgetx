@@ -548,7 +548,7 @@ if(CUSTOM_TOOLCHAIN_OUTPUT_LIB)
     add_dependencies(tx_firmware ${RADIO_DEPENDENCIES} ${FIRMWARE_DEPENDENCIES})
     set_target_properties(tx_firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 if(ESP_PLATFORM)
-    target_link_libraries(tx_firmware idf::arduino idf::app_update)
+    target_link_libraries(tx_firmware idf::arduino idf::app_update idf::sdmmc)
 endif()
     add_definitions(-DRTOS_FREERTOS) # use FreeRTOS as the RTOS
 else() #CUSTOM_TOOLCHAIN_OUTPUT_LIB

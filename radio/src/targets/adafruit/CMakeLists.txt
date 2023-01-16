@@ -287,6 +287,7 @@ set(TARGET_SRC
   haptic_driver.cpp
   telemetry_driver.cpp
   diskio.cpp
+  backlight_driver.cpp
   ${EEPROM_MEDIA}
   ${TIMER_DRIVER}
   flyskyHallStick_driver.cpp

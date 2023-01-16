@@ -24,6 +24,7 @@
 #include <Adafruit_MCP23X17.h>
 
 static Adafruit_MCP23X17 mcp;
+static Adafruit_MCP23X17 mcp1;
 static RTOS_MUTEX_HANDLE keyMutex;
 uint32_t readKeys()
 {
@@ -31,7 +32,9 @@ uint32_t readKeys()
   RTOS_LOCK_MUTEX(keyMutex);
   uint8_t mask = (1 << BUTTONS_ON_GPIOA) - 1;
   uint8_t gpioA = mcp.readGPIOA();
-  result |= gpioA ^ mask;
+  result |= (gpioA ^ mask) & mask;
+
+  gpioA = mcp1.readGPIOA();
   RTOS_UNLOCK_MUTEX(keyMutex);
   return result;
 }
@@ -90,7 +93,8 @@ uint32_t switchState(uint8_t index)
 void keysInit()
 {
   RTOS_CREATE_MUTEX(keyMutex);
-  mcp.begin_I2C();
+  mcp.begin_I2C(MCP23XXX_ADDR, &Wire);
+  mcp1.begin_I2C(MCP23XXX_ADDR + 1, &Wire);
 
   for (int i = 0; i < BUTTONS_ON_GPIOA; i++) {
     mcp.pinMode(i, INPUT_PULLUP);

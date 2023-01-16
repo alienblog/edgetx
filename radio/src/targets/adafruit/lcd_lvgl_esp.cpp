@@ -67,12 +67,13 @@ static lv_disp_drv_t disp_drv;
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_t* disp = nullptr;
 static lv_indev_drv_t indev_drv;
+extern lv_color_t* lcdbuf;
 void lcdInitDisplayDriver()
 {
 #if defined(CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488)
     lv_color_t* buf1 = (lv_color_t*)malloc(DISP_BUF_SIZE * sizeof(lv_color_t));
 #else
-    lv_color_t* buf1 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_color_t* buf1 = lcdbuf;//(lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
 #endif
     assert(buf1 != NULL);
 
@@ -81,7 +82,7 @@ void lcdInitDisplayDriver()
 #if defined(CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488)
     lv_color_t* buf2 = (lv_color_t*)malloc(DISP_BUF_SIZE * sizeof(lv_color_t));
 #else
-    lv_color_t* buf2 = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_color_t* buf2 = &lcdbuf[DISP_BUF_SIZE];//(lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
 #endif
     assert(buf2 != NULL);
 #else
@@ -202,26 +203,6 @@ bool touchPanelInit(void) {
 
   return true;
 }
-
-static bool bkl_enabled = false;
-void backlightInit() {
-}
-
-void backlightEnable(uint8_t level) {
-  static uint16_t prev_level = 0;
-  const uint16_t offset = 200;
-  uint16_t l = 255;//(((uint16_t)level) * (255 - offset) / BACKLIGHT_LEVEL_MAX) + offset;
-  if (l != prev_level) {
-    prev_level = l;
-  }
-  bkl_enabled = true;
-}
-
-void backlightDisable() {
-  //tft.PWM1out(0);
-  bkl_enabled = false;
-}
-uint8_t isBacklightEnabled() {return bkl_enabled;}
 
 void DMAWait()
 {

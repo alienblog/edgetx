@@ -23,15 +23,24 @@
 #include "FatFs/ff.h"
 
 #include "Arduino.h"
-#include "sd_diskio.h"
+#include "driver/gpio.h"
+#include "soc/soc_caps.h"
+#include "driver/sdmmc_host.h"
+#include "driver/sdspi_host.h"
+#include "driver/sdmmc_defs.h"
+#include "sdmmc_cmd.h"
 
-static bool card_present = true; // default to consider it as present until mount failed
+static bool card_present = false; // default to consider it as present until mount failed
+static sdmmc_host_t config = SDSPI_HOST_DEFAULT();
+static sdspi_dev_handle_t handle;
+static sdspi_device_config_t dev_config = SDSPI_DEVICE_CONFIG_DEFAULT();
+static sdmmc_card_t sdcard;
+static sdmmc_card_t* card = &sdcard;
 
 bool SD_CARD_PRESENT(void) {
   return card_present;
 }
 
-static uint8_t sddisk = 0xFF;
 /*--------------------------------------------------------------------------
 
    Public Functions
@@ -42,17 +51,12 @@ static uint8_t sddisk = 0xFF;
 /*-----------------------------------------------------------------------*/
 /* Initialize Disk Drive                                                 */
 /*-----------------------------------------------------------------------*/
-extern DSTATUS ff_sd_initialize(uint8_t pdrv);
-extern DSTATUS ff_sd_status(uint8_t pdrv);
-extern DRESULT ff_sd_read(uint8_t pdrv, uint8_t* buffer, DWORD sector, UINT count);
-extern DRESULT ff_sd_write(uint8_t pdrv, const uint8_t* buffer, DWORD sector, UINT count);
-extern DRESULT ff_sd_ioctl(uint8_t pdrv, uint8_t cmd, void* buff);
 
 DSTATUS disk_initialize (
         BYTE drv                /* Physical drive number (0) */
 )
 {
-  return ff_sd_initialize(drv);
+  return card_present ? 0 : STA_NOINIT;
 }
 
 
@@ -64,7 +68,7 @@ DSTATUS disk_status (
         BYTE drv                /* Physical drive number (0) */
 )
 {
-  return ff_sd_status(drv);
+  return 0;
 }
 
 RTOS_MUTEX_HANDLE spiMutex;
@@ -79,9 +83,10 @@ DRESULT disk_read (
         UINT count                      /* Sector count (1..255) */
 )
 {
-  RTOS_LOCK_MUTEX(spiMutex);
-  DRESULT res = ff_sd_read(drv, buff, sector, count);
-  RTOS_UNLOCK_MUTEX(spiMutex);
+  DRESULT res = RES_ERROR;
+  if (0 == sdmmc_read_sectors(card, buff, sector, count)) {
+    res = RES_OK;
+  }
   return res;
 }
 
@@ -92,9 +97,10 @@ DRESULT disk_write (
         UINT count                      /* Sector count (1..255) */
 )
 {
-  RTOS_LOCK_MUTEX(spiMutex);
-  DRESULT res = ff_sd_write(drv, buff, sector, count);
-  RTOS_UNLOCK_MUTEX(spiMutex);
+  DRESULT res = RES_ERROR;
+  if (0 == sdmmc_write_sectors(card, buff, sector, count)) {
+    res = RES_OK;
+  }
   return res;
 }
 
@@ -109,7 +115,20 @@ DRESULT disk_ioctl (
         void *buff              /* Buffer to send/receive control data */
 )
 {
-  return ff_sd_ioctl(drv, ctrl, buff);
+    assert(card);
+    switch(ctrl) {
+        case CTRL_SYNC:
+            return RES_OK;
+        case GET_SECTOR_COUNT:
+            *((DWORD*) buff) = card->csd.capacity;
+            return RES_OK;
+        case GET_SECTOR_SIZE:
+            *((WORD*) buff) = card->csd.sector_size;
+            return RES_OK;
+        case GET_BLOCK_SIZE:
+            return RES_ERROR;
+    }
+    return RES_ERROR;
 }
 
 
@@ -127,29 +146,41 @@ FATFS g_FATFS_Obj __DMA; // this is in uninitialised section !!!
 
 void sdMount()
 {
-  if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
-    // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
-    _g_FATFS_init = true;
-    card_present = true;
+  if (!card_present) {
+    TRACE("No card to mount");
+  } else if (_g_FATFS_init) {
+    TRACE("Card already mounted");
   } else {
-    card_present = false;
+    if (f_mount(&g_FATFS_Obj, "", 1) == FR_OK) {
+      // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
+      _g_FATFS_init = true;
+    }
   }
 }
-
 
 // TODO shouldn't be there!
 void sdInit(void)
 {
-  SPI.begin();
-  sddisk = sdcard_init(SDCARD_CS_GPIO, &SPI, 4000000);
-  if (sddisk != 0xFF) {
-    sdMount();
+  if (!card_present) {
+    dev_config.host_id = (spi_host_device_t)config.slot;
+    dev_config.gpio_cs = (gpio_num_t)SDCARD_CS_GPIO;
+    sdspi_host_init();
+    sdspi_host_init_device(&dev_config, &handle);
+
+    config.slot = handle;
+    if (0 == sdmmc_card_init(&config, card)) {
+      card_present = true;
+      sdMount();
+    } else {
+      sdspi_host_remove_device(handle);
+      sdspi_host_deinit();
+    }
   }
 }
 
 void sdDone()
 {
-  Serial.println("+++++++++c");
+  TRACE("+++++%s", __FUNCTION__);
 }
 
 uint32_t sdMounted()
@@ -159,11 +190,11 @@ uint32_t sdMounted()
 
 uint32_t sdIsHC()
 {
-  return (sdcard_type(sddisk) == CARD_SDHC);
+  return 0;//(sdcard_type(sddisk) == CARD_SDHC);
 }
 
 uint32_t sdGetSpeed()
 {
-  Serial.println("+++++++++f");
+  TRACE("+++++%s", __FUNCTION__);
   return 330000;
 }

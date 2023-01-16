@@ -283,19 +283,29 @@ void check_telemetry_exti();
 
 #if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
 /*
-  LCD MOSI 33
-  LCD MISO 39
-  LCD SCK 15
+From Kconfig
+  MOSI 32
+  MISO 25
+  SCLK 27
   LCD CS 12
-  LCD DC 27
-  Backlight 32
-  Touch CS 14
-  Touch IRQ 36
+  LCD DC 4
+  TOUCH CS 13
+  
+From top CMakeLists
+  INTMOD RX/TX 36/26
 */
-#define RMT_TX_PIN 13 // ?
-#define TRAINER_IN_GPIO 34
-#define SDCARD_CS_GPIO 4
-#define FLYSKY_UART_RX_PIN 37
+#define BACKLITE_PIN 5
+#define RMT_TX_PIN 18
+#define TRAINER_IN_GPIO 35
+#define FLYSKY_UART_RX_PIN 39
+
+#define I2C_SCL 21
+#define I2C_SDA 22
+
+//#define SDSPI_CLK 14
+//#define SDSPI_MOSI 13
+//#define SDSPI_MISO 36
+#define SDCARD_CS_GPIO 0
 
 #else
 #endif
@@ -926,7 +936,7 @@ void fsLedOn(uint8_t);
 #define LCD_DEPTH                       1
 void lcdRefresh(bool wait=true); // TODO uint8_t wait to simplify this
 #else
-#if defined CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488
+#if !defined(CONFIG_LV_TFT_DISPLAY_CONTROLLER_RA8875)
 #define LCD_W                           480
 #define LCD_H                           320
 #else

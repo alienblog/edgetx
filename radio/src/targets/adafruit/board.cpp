@@ -29,6 +29,8 @@
 
 #include "lvgl_helpers.h"
 
+#include "Wire.h"
+
 extern void adruino_adc_init(void);
 extern void flysky_hall_stick_init();
 
@@ -77,33 +79,35 @@ void loop() {
 }
 
 extern RTOS_MUTEX_HANDLE spiMutex;
+lv_color_t* lcdbuf;
 void boardInit()
 {
   disableCore0WDT();
   disableCore1WDT();
 
+  lcdbuf = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t) * 2, MALLOC_CAP_DMA);
 RTOS_CREATE_MUTEX(spiMutex);
-#ifdef ARDUINO_FEATHER_F405
-#else // default ESP32V2
-  pinMode(NEOPIXEL_I2C_POWER, OUTPUT);
-  digitalWrite(NEOPIXEL_I2C_POWER, HIGH);
-#endif
+
+  Wire.setPins(I2C_SDA, I2C_SCL);
 
 #if defined(DEBUG)
   serialSetMode(SP_AUX1, UART_MODE_DEBUG);
   serialInit(SP_AUX1, UART_MODE_DEBUG);
 #endif
+
+  backlightInit();
+
 #if !defined(COLORLCD)
   lcdInit();
 #endif
 
+  lv_init();
+  lvgl_driver_init(); // lvgl driver initializes SPI for SD as well.
+  sdInit();
+
   keysInit();
 
   initWiFi();
-
-  lv_init();
-  /* Initialize SPI or I2C bus used by the drivers */
-  lvgl_driver_init();
 
   flysky_hall_stick_init();
   init5msTimer();
