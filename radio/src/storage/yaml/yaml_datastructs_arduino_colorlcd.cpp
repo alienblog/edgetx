@@ -445,6 +445,9 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "uartSampleMode", 2 ),
   YAML_UNSIGNED( "stickDeadZone", 3 ),
   YAML_PADDING( 1 ),
+  YAML_STRING("wifi_ssid", 32),
+  YAML_STRING("wifi_password", 32),
+  YAML_STRING("ftppass", 20),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -687,6 +690,11 @@ static const struct YamlNode struct_anonymous_13[] = {
   YAML_UNSIGNED( "flags", 8 ),
   YAML_END
 };
+static const struct YamlNode struct_anonymous_14[] = {
+  YAML_UNSIGNED( "ch", 8 ),
+  YAML_ARRAY("rx_mac_addr", 8, 6, struct_unsigned_8, NULL),
+  YAML_END
+};
 static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_ARRAY("raw", 8, 25, struct_unsigned_8, NULL),
   YAML_STRUCT("ppm", 16, struct_PpmModule, NULL),
@@ -699,6 +707,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
   YAML_STRUCT("crsf", 8, struct_anonymous_12, NULL),
   YAML_STRUCT("dsmp", 8, struct_anonymous_13, NULL),
+  YAML_STRUCT("espnow", 56, struct_anonymous_14, NULL),
   YAML_END
 };
 static const struct YamlNode struct_ModuleData[] = {

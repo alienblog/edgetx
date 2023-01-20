@@ -3,7 +3,7 @@
  *
  * Based on code named
  *   th9x - http://code.google.com/p/th9x
- *   er9x - http://code.google.com/p/er9x
+  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
  *
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
@@ -25,10 +25,10 @@
 uint8_t adcPins[] = {A0, A1};
 static bool arduino_hal_adc_init()
 {
-  for (int i = 0; i < sizeof(adcPins)/sizeof(adcPins[0]); i++) {
-    adcAttachPin(adcPins[i]);
-  }
-  analogReadResolution(12);
+  //for (int i = 0; i < sizeof(adcPins)/sizeof(adcPins[0]); i++) {
+    //adcAttachPin(adcPins[i]);
+  //}
+  //analogReadResolution(12);
 
   // TODO-feather: give those channels a default value, in case the FLySky Hall Gimbals were not connected
   adcValues[0] = 500;
@@ -40,10 +40,10 @@ static bool arduino_hal_adc_init()
 
 static bool arduino_hal_adc_start_read()
 {
-  for (int i = 0; i < sizeof(adcPins)/sizeof(adcPins[0]); i++) {
+  //for (int i = 0; i < sizeof(adcPins)/sizeof(adcPins[0]); i++) {
     //int analogValue = analogRead(adcPins[i]);
-    adcValues[i + 4] = analogReadMilliVolts(adcPins[i]);  // first 4 are the FlySky Hall Gimbals
-  }
+    //adcValues[i + 4] = analogReadMilliVolts(adcPins[i]);  // first 4 are the FlySky Hall Gimbals
+  //}
   return true;
 }
 

@@ -69,10 +69,6 @@ static lv_disp_t* disp = nullptr;
 static lv_indev_drv_t indev_drv;
 void lcdInitDisplayDriver()
 {
-    lv_init();
-
-    /* Initialize SPI or I2C bus used by the drivers */
-    lvgl_driver_init();
 #if defined(CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488)
     lv_color_t* buf1 = (lv_color_t*)malloc(DISP_BUF_SIZE * sizeof(lv_color_t));
 #else

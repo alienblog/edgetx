@@ -277,6 +277,7 @@ void check_telemetry_exti();
 #define TMR_5MS_CORE 1
 #define TRAINER_PPM_OUT_TASK_CORE 1
 #define MIXER_TASK_CORE 1
+#define PULSES_TASK_CORE 1
 #define MENU_TASK_CORE 0
 #define AUDIO_TASK_CORE 0
 
@@ -1008,5 +1009,28 @@ int gyroRead(uint8_t buffer[GYRO_BUFFER_LENGTH]);
 
 #define BATTERY_DIVIDER 23711
 #define VOLTAGE_DROP 45
+
+
+// WiFi
+
+#ifndef ESP_NOW_ETH_ALEN
+#define ESP_NOW_ETH_ALEN 6
+#endif
+
+void initWiFi();
+void startWiFi( char *ssid_zchar, char *passwd_zchar, char* ftppass_zchar);
+void stopWiFi();
+const char* getWiFiStatus();
+bool isWiFiStarted(uint32_t expire=500);
+
+void startWiFiESPNow();
+void stopWiFiESPNow();
+void init_espnow();
+void disable_espnow();
+void pause_espnow();
+void resume_espnow();
+void init_bind_espnow();
+void stop_bind_espnow();
+bool is_binding_espnow();
 
 #endif // _BOARD_H_

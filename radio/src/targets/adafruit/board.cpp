@@ -20,6 +20,14 @@
 
 #include "opentx.h"
 #include "Arduino.h"
+/* Littlevgl specific */
+#ifdef LV_LVGL_H_INCLUDE_SIMPLE
+#include "lvgl.h"
+#else
+#include "lvgl/lvgl.h"
+#endif
+
+#include "lvgl_helpers.h"
 
 extern void adruino_adc_init(void);
 extern void flysky_hall_stick_init();
@@ -29,6 +37,7 @@ HardwareOptions hardwareOptions;
 #if defined(__cplusplus)
 extern "C" {
 #endif
+
 //#include "usb_dcd_int.h"
 //#include "usb_bsp.h"
 #if defined(__cplusplus)
@@ -89,6 +98,12 @@ RTOS_CREATE_MUTEX(spiMutex);
 #endif
 
   keysInit();
+
+  initWiFi();
+
+  lv_init();
+  /* Initialize SPI or I2C bus used by the drivers */
+  lvgl_driver_init();
 
   flysky_hall_stick_init();
   init5msTimer();

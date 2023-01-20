@@ -89,6 +89,7 @@ set(GUI_SRC
   radio_hardware.cpp
   radio_diagkeys.cpp
   radio_diaganas.cpp
+  radio_wifi.cpp
   radio_theme.cpp
   radio_calibration.cpp
   view_about.cpp

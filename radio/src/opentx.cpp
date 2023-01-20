@@ -36,8 +36,8 @@
 #endif
 
 
-RadioData  g_eeGeneral;
-ModelData  g_model;
+EXT_RAM_ATTR RadioData  g_eeGeneral;
+EXT_RAM_ATTR ModelData  g_model;
 
 #if defined(SDCARD)
 Clipboard clipboard;

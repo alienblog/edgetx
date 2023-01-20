@@ -294,6 +294,7 @@ set(FIRMWARE_TARGET_SRC
   i2c_driver.cpp
   pwr_driver.cpp
   rtc_driver.cpp
+  pulses_espnow.cpp
   #../common/arm/loadboot.cpp
   )
 
@@ -312,6 +313,15 @@ if(INTERNAL_MODULE_ELRS)
     #../common/arm/stm32/intmodule_serial_driver.cpp
     )
 endif()
+
+set(TARGET_SRC
+  ${TARGET_SRC}
+  ftp-server/WiFi.c
+  ftp-server/initWiFi.cpp
+  ftp-server/ftp.c
+  ota_server/ota_server.c
+  )
+include_directories(${RADIO_SRC_DIR}/targets/${TARGET_DIR}/ftp-server gui/${GUI_DIR} ${RADIO_SRC_DIR}/targets/${TARGET_DIR}/ota_server/include)
 
 if(INTERNAL_MODULE_PPM)
   add_definitions(-DHARDWARE_INTERNAL_MODULE)

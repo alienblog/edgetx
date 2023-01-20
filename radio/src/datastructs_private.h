@@ -527,6 +527,12 @@ PACK(struct ModuleData {
     NOBACKUP(struct {
       uint8_t flags;
     } dsmp);
+#if defined(PCB_ARDUINO)
+    NOBACKUP(PACK(struct {
+      uint8_t ch;
+      uint8_t rx_mac_addr[ESP_NOW_ETH_ALEN];
+    }) espnow);
+#endif
   } NAME(mod) FUNC(select_mod_type);
 
   NOBACKUP(inline uint8_t getChannelsCount() const
@@ -909,6 +915,12 @@ PACK(struct RadioData {
 #if defined(IMU)
   NOBACKUP(int8_t imuMax);
   NOBACKUP(int8_t imuOffset);
+#endif
+
+#if defined(PCB_ARDUINO)
+  char wifi_ssid[32];
+  char wifi_password[32];
+  char ftppass[20];
 #endif
 });
 
