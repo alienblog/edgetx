@@ -103,6 +103,12 @@ extern uint32_t NV14internalModuleFwVersion;
 
 #define IS_SPEKTRUM_PROTOCOL()           (telemetryProtocol == PROTOCOL_TELEMETRY_SPEKTRUM)
 
+#if defined(INTERNAL_MODULE_ESPNOW)
+inline bool isModuleESPNOW(uint8_t idx)
+{
+  return g_model.moduleData[idx].type == MODULE_TYPE_ESPNOW;
+}
+#endif
 
 #if defined(MULTIMODULE)
 // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
@@ -439,6 +445,8 @@ static const int8_t maxChannelsModules_M8[] = {
   0, // MODULE_TYPE_XJT_LITE_PXX2: index NOT USED
   6, // MODULE_TYPE_FLYSKY: 14 channels for AFHDS2A, AFHDS3 special cased
   4, // MODULE_TYPE_LEMON_DSMP: 12 channels for DSMX
+  24, // MODULE_TYPE_ESPNOW
+  0, // MODULE_TYPE_BT_POWERUP
 };
 
 static_assert(MODULE_TYPE_COUNT == sizeof(maxChannelsModules_M8),

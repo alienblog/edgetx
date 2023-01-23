@@ -299,6 +299,11 @@ void ModuleWindow::updateModule()
             setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
           }
 #endif
+#if defined(INTERNAL_MODULE_ESPNOW)
+          if (isModuleESPNOW(moduleIdx)) {
+            init_bind_espnow();
+          }
+#endif
 #if defined(AFHDS2)
           if (isModuleFlySky(moduleIdx)) resetPulsesAFHDS2();
 #endif
@@ -315,6 +320,11 @@ void ModuleWindow::updateModule()
 #if defined(MULTIMODULE)
           if (isModuleMultimodule(moduleIdx)) {
             setMultiBindStatus(moduleIdx, MULTI_BIND_INITIATED);
+          }
+#endif
+#if defined(INTERNAL_MODULE_ESPNOW)
+          if (isModuleESPNOW(moduleIdx)) {
+            init_bind_espnow();
           }
 #endif
           moduleState[moduleIdx].mode = MODULE_MODE_BIND;
@@ -338,6 +348,12 @@ void ModuleWindow::updateModule()
         if (isModuleMultimodule(moduleIdx) &&
             getMultiBindStatus(moduleIdx) == MULTI_BIND_FINISHED) {
           setMultiBindStatus(moduleIdx, MULTI_BIND_NONE);
+          moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+          bindButton->check(false);
+        }
+#endif
+#if defined(INTERNAL_MODULE_ESPNOW)
+        if (isModuleESPNOW(moduleIdx) && !is_binding_espnow()) {
           moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
           bindButton->check(false);
         }

@@ -13,6 +13,8 @@
  * GNU General Public License for more details.
  */ 
  
+#include "opentx.h"
+
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
@@ -27,9 +29,10 @@
 #include "esp_task.h"
 #include "rom/ets_sys.h"
 #include "rom/crc.h"
-#include "opentx.h"
 #include "esprc.h"
 #include "esprc_packet.h"
+
+#include "pulses_esp32.h"
 
 static const char *TAG = "tx.cpp";
 static xQueueHandle evtQueue;
@@ -276,14 +279,7 @@ esp_err_t initTX(){
   }
   return ESP_OK;
 }
-#if 0
-void intmoduleSendNextFrame()
-{
-  if (xPulsesQueue){
-    xQueueOverwrite( xPulsesQueue, channelOutputs );
-  }
-}
-#endif
+
 void pause_espnow(){
   ESP_LOGI(TAG, "Pause ESP-NOW");
   txState = PAUSED;
@@ -316,10 +312,54 @@ void init_espnow()
   startWiFiESPNow();
   initTX();
 }
-#if 0
-void intmoduleStop()
+
+static void* espNowInit(uint8_t module)
 {
-  ESP_LOGI(TAG, "intmoduleStop");
+  (void)module;
+  init_espnow();
+  return 0;
+}
+
+static void espNowDeInit(void* context)
+{
   pulsesON = false;
 }
+
+static void espNowSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
+{
+  // nothing to do
+}
+
+static void espNowSendPulses(void* context)
+{
+  if (xPulsesQueue){
+    xQueueOverwrite( xPulsesQueue, channelOutputs );
+  }
+}
+
+static int espNowGetByte(void* context, uint8_t* data)
+{
+#if 0
+  return IntmoduleSerialDriver.getByte(context, data);
 #endif
+return 0;
+}
+
+static void espNowProcessData(void* context, uint8_t data, uint8_t* buffer, uint8_t* len)
+{
+#if 0
+  processMultiTelemetryData(data, INTERNAL_MODULE);
+#endif
+}
+
+#include "hal/module_driver.h"
+
+const etx_module_driver_t EspNowDriver = {
+  .protocol = PROTOCOL_CHANNELS_ESPNOW,
+  .init = espNowInit,
+  .deinit = espNowDeInit,
+  .setupPulses = espNowSetupPulses,
+  .sendPulses = espNowSendPulses,
+  .getByte = espNowGetByte,
+  .processData = espNowProcessData,
+};

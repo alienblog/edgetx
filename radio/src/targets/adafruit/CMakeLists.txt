@@ -43,6 +43,8 @@ add_definitions(-DLUA_INPUTS -DTIMERS -DSOFTWARE_VOLUME) # TODO-feather
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 option(INTERNAL_MODULE_MULTI "Support for MULTI internal module" ON)
 option(INTERNAL_MODULE_ELRS "Support for ELRS internal module" OFF)
+option(INTERNAL_MODULE_ESPNOW "Support for ESPNOW internal module" ON)
+option(INTERNAL_MODULE_BT_POWERUP "Support for Bluetooth internal module for POWERUP" ON)
 set(FLAVOUR feather)
 set(NAVIGATION_TYPE 9x)
 set(CPU_TYPE ARDUINO)
@@ -94,6 +96,22 @@ elseif(INTERNAL_MODULE_PXX1 OR INTERNAL_MODULE_PXX2)
   set(TARGET_SRC
     ${TARGET_SRC}
     #intmodule_pulses_driver.cpp
+    )
+endif()
+
+if(INTERNAL_MODULE_BT_POWERUP)
+add_definitions(-DINTERNAL_MODULE_BT_POWERUP)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    pulses_bt_powerup.cpp
+    )
+endif()
+
+if(INTERNAL_MODULE_ESPNOW)
+add_definitions(-DINTERNAL_MODULE_ESPNOW)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    pulses_espnow.cpp
     )
 endif()
 
@@ -294,7 +312,6 @@ set(FIRMWARE_TARGET_SRC
   i2c_driver.cpp
   pwr_driver.cpp
   rtc_driver.cpp
-  pulses_espnow.cpp
   #../common/arm/loadboot.cpp
   )
 

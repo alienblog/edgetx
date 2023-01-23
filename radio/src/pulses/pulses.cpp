@@ -56,6 +56,10 @@
 #include "pulses/afhds3.h"
 #endif
 
+#if defined(INTERNAL_MODULE_ESPNOW) || defined(INTERNAL_MODULE_BT_POWERUP)
+#include "pulses_esp32.h"
+#endif
+
 uint8_t s_pulses_paused = 0;
 ModuleState moduleState[NUM_MODULES];
 InternalModulePulsesData intmodulePulsesData __DMA;
@@ -317,6 +321,14 @@ uint8_t getRequiredProtocol(uint8_t module)
       protocol = PROTOCOL_CHANNELS_DSMP;
       break;
       
+    case MODULE_TYPE_ESPNOW:
+      protocol = PROTOCOL_CHANNELS_ESPNOW;
+      break;
+
+    case MODULE_TYPE_BT_POWERUP:
+      protocol = PROTOCOL_CHANNELS_BT_POWERUP;
+      break;
+
     default:
       protocol = PROTOCOL_CHANNELS_NONE;
       break;
@@ -418,6 +430,20 @@ static void enablePulsesInternalModule(uint8_t protocol)
     case PROTOCOL_CHANNELS_AFHDS3:
       internalModuleContext = afhds3::internalDriver.init(INTERNAL_MODULE);
       internalModuleDriver = &afhds3::internalDriver;
+      break;
+#endif
+
+#if defined(INTERNAL_MODULE_ESPNOW)
+    case PROTOCOL_CHANNELS_ESPNOW:
+      internalModuleContext = EspNowDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &EspNowDriver;
+      break;
+#endif
+
+#if defined(INTERNAL_MODULE_BT_POWERUP)
+    case PROTOCOL_CHANNELS_BT_POWERUP:
+      internalModuleContext = BtPowerUPDriver.init(INTERNAL_MODULE);
+      internalModuleDriver = &BtPowerUPDriver;
       break;
 #endif
 
