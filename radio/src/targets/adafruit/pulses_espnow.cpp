@@ -48,6 +48,10 @@ static bool volatile pulsesON = false;
 static bool volatile paused = false;
 static TXState_t volatile txState = PAUSED;
 
+#define ESPNOW_STACK_SIZE (1024 * 4)
+RTOS_DEFINE_STACK(espnow_stack, ESPNOW_STACK_SIZE);
+StaticTask_t espnowTaskBuffer;
+
 void packet_prepare()
 {
   packet.type = DATA;
@@ -274,7 +278,7 @@ esp_err_t initTX(){
 
   pulsesON = true;
   txState = PULSES;
-  if (pdPASS != xTaskCreatePinnedToCore(tx_task, "tx_task", 1024 * 4, NULL, ESP_TASK_PRIO_MAX-6, NULL, PULSES_TASK_CORE)) {
+  if (NULL == xTaskCreateStaticPinnedToCore(tx_task, "tx_task", ESPNOW_STACK_SIZE, NULL, ESP_TASK_PRIO_MAX-6, espnow_stack.stack, &espnowTaskBuffer, PULSES_TASK_CORE)) {
     ESP_LOGE(TAG, "Failed to create tx_task");
   }
   return ESP_OK;

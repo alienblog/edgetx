@@ -38,9 +38,14 @@ extern "C" {
 #define OTA_SERVER_STACK_SIZE   0xE00
 #define STA_CONNECT_TMO 10000
 
+EXT_RAM_ATTR RTOS_DEFINE_STACK(ftp_task_stack, FTP_SERVER_STACK_SIZE);
+EXT_RAM_ATTR RTOS_DEFINE_STACK(ota_task_stack, OTA_SERVER_STACK_SIZE);
+
 static const char *TAG = "initWiFi.cpp";
 TaskHandle_t wifiTaskHandle = NULL;
 TaskHandle_t otaTaskHandle = NULL;
+StaticTask_t wifiTaskBuffer;
+StaticTask_t otaTaskBuffer;
 static char ssid[sizeof(g_eeGeneral.wifi_ssid)+1] = "EdgeTX";
 static char passwd[sizeof(g_eeGeneral.wifi_password)+1] = "";
 char ftp_pass[FTP_USER_PASS_LEN_MAX > sizeof(g_eeGeneral.ftppass) ? FTP_USER_PASS_LEN_MAX +1 : sizeof(g_eeGeneral.ftppass)+1] = "edgetx";
@@ -128,11 +133,15 @@ void startWiFi( char *ssid_zchar, char *passwd_zchar, char* ftppass_zchar)
     ESP_LOGW(TAG,"passwd: '%s'",passwd);
     ESP_LOGW(TAG,"ftppasswd: '%s'",ftp_pass);
   }
-  if( pdPASS != xTaskCreatePinnedToCore( wifiTask, "WiFiTask", FTP_SERVER_STACK_SIZE, NULL, ESP_TASK_PRIO_MAX - 4, &wifiTaskHandle, FTP_SERVER_TASK_CORE )){
+  wifiTaskHandle = xTaskCreateStaticPinnedToCore( wifiTask, "WiFiTask", FTP_SERVER_STACK_SIZE, NULL,
+      ESP_TASK_PRIO_MAX - 4, ftp_task_stack.stack, &wifiTaskBuffer, FTP_SERVER_TASK_CORE );
+  if( wifiTaskHandle == NULL){
     ESP_LOGE(TAG, "Failed to create task: 'WiFiTask'");
   }
   configASSERT( wifiTaskHandle );
-  if( pdPASS != xTaskCreatePinnedToCore( ota_server_task, "OTATask", OTA_SERVER_STACK_SIZE, NULL, ESP_TASK_PRIO_MAX - 9, &otaTaskHandle, OTA_SERVER_TASK_CORE )){
+  otaTaskHandle = xTaskCreateStaticPinnedToCore( ota_server_task, "OTATask", OTA_SERVER_STACK_SIZE,
+      NULL, ESP_TASK_PRIO_MAX - 9, ota_task_stack.stack, &otaTaskBuffer, OTA_SERVER_TASK_CORE );
+  if( otaTaskHandle == NULL ){
     ESP_LOGE(TAG, "Failed to create task: 'OTATask'");
   }
   configASSERT( otaTaskHandle );
