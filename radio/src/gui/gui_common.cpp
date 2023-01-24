@@ -789,9 +789,12 @@ bool isInternalModuleAvailable(int moduleType)
 
   if (moduleType == MODULE_TYPE_NONE)
     return true;
-
+#if defined(PCB_ARDUINO)
+  return isInternalModuleSupported(moduleType);
+#else
   if (g_eeGeneral.internalModule != moduleType)
     return false;
+#endif
 
 #if defined(INTERNAL_MODULE_PXX1)
   if ((moduleType == MODULE_TYPE_XJT_PXX1) &&

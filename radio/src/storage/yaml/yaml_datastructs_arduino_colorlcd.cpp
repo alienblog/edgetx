@@ -37,6 +37,8 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_XJT_LITE_PXX2, "TYPE_XJT_LITE_PXX2"  },
   {  MODULE_TYPE_FLYSKY, "TYPE_FLYSKY"  },
   {  MODULE_TYPE_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
+  {  MODULE_TYPE_ESPNOW, "TYPE_ESPNOW"  },
+  {  MODULE_TYPE_BT_POWERUP, "TYPE_BT_POWERUP"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TrainerMultiplex[] = {

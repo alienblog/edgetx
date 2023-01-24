@@ -529,11 +529,13 @@ void intmoduleSendNextFrame()
 
 bool setupPulsesInternalModule()
 {
+  uint8_t prev_protocol = moduleState[INTERNAL_MODULE].protocol;
+
   uint8_t protocol = getRequiredProtocol(INTERNAL_MODULE);
 
   heartbeat |= (HEART_TIMER_PULSES << INTERNAL_MODULE);
 
-  if (moduleState[INTERNAL_MODULE].protocol != protocol) {
+  if (prev_protocol != protocol) {
     enablePulsesInternalModule(protocol);
     moduleState[INTERNAL_MODULE].protocol = protocol;
     return false;

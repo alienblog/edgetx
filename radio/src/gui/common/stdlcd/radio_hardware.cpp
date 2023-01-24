@@ -537,6 +537,7 @@ void menuRadioHardware(event_t event)
                        MODULE_TYPE_MAX, attr, event, isInternalModuleSupported);
         if (g_model.moduleData[INTERNAL_MODULE].type !=
             g_eeGeneral.internalModule) {
+#if !defined(PCB_ARDUINO)
           memclear(&g_model.moduleData[INTERNAL_MODULE], sizeof(ModuleData));
           storageDirty(EE_MODEL);
           storageDirty(EE_GENERAL);
@@ -545,6 +546,7 @@ void menuRadioHardware(event_t event)
           if (isInternalModuleCrossfire() && serialGetMode(SP_VCP) ==  UART_MODE_NONE)
             serialSetMode(SP_VCP, UART_MODE_CLI);
         #endif
+#endif
         }
       } break;
 #endif
