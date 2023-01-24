@@ -26,13 +26,17 @@
 static uint16_t mux[] = {ADS1X15_REG_CONFIG_MUX_SINGLE_0, ADS1X15_REG_CONFIG_MUX_SINGLE_1,
     ADS1X15_REG_CONFIG_MUX_SINGLE_2, ADS1X15_REG_CONFIG_MUX_SINGLE_3};
 static uint8_t currentAdcPin = 0;
+
+#ifndef DISABLE_I2C_DEVS
 static Adafruit_ADS1015 ads1015;
+#endif
 
 static bool arduino_hal_adc_init()
 {
+#ifndef DISABLE_I2C_DEVS
   ads1015.begin();
   ads1015.startADCReading(mux[currentAdcPin], false);
-
+#endif
   // TODO-feather: give those channels a default value, in case the FLySky Hall Gimbals were not connected
   adcValues[0] = 500;
   adcValues[1] = 500;
@@ -45,6 +49,7 @@ static bool arduino_hal_adc_init()
 
 static bool arduino_hal_adc_start_read()
 {
+#ifndef DISABLE_I2C_DEVS
   if (ads1015.conversionComplete()) {
     adcValues[4 + currentAdcPin] = ads1015.getLastConversionResults();
     //TRACE("+++++ADS1015 pin %d reading %d", currentAdcPin, adcValues[4 + currentAdcPin]);
@@ -54,6 +59,7 @@ static bool arduino_hal_adc_start_read()
     }
     ads1015.startADCReading(mux[currentAdcPin], false);
   }
+#endif
   return true;
 }
 

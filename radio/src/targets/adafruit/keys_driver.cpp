@@ -23,12 +23,15 @@
 #include "FreeRTOS_entry.h"
 #include <Adafruit_MCP23X17.h>
 
+#ifndef DISABLE_I2C_DEVS
 static Adafruit_MCP23X17 mcp;
 static Adafruit_MCP23X17 mcp1;
+#endif
 static RTOS_MUTEX_HANDLE keyMutex;
 uint32_t readKeys()
 {
   uint32_t result = 0;
+#ifndef DISABLE_I2C_DEVS
   RTOS_LOCK_MUTEX(keyMutex);
   uint8_t mask = (1 << BUTTONS_ON_GPIOA) - 1;
   uint8_t gpioA = mcp.readGPIOA();
@@ -36,6 +39,7 @@ uint32_t readKeys()
 
   gpioA = mcp1.readGPIOA();
   RTOS_UNLOCK_MUTEX(keyMutex);
+#endif
   return result;
 }
 
@@ -93,12 +97,14 @@ uint32_t switchState(uint8_t index)
 void keysInit()
 {
   RTOS_CREATE_MUTEX(keyMutex);
+#ifndef DISABLE_I2C_DEVS
   mcp.begin_I2C(MCP23XXX_ADDR, &Wire);
   mcp1.begin_I2C(MCP23XXX_ADDR + 1, &Wire);
 
   for (int i = 0; i < BUTTONS_ON_GPIOA; i++) {
     mcp.pinMode(i, INPUT_PULLUP);
   }
+#endif
 }
 
 void INTERNAL_MODULE_ON(void) {
