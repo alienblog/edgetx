@@ -135,125 +135,7 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   {
     return (uint32_t)(simuTimerMicros() / 1000);
   }
-#elif defined(RTOS_FREERTOS)  // This is the Arduino version of FreeRTOS
-  #include "FreeRTOS_entry.h"
-  #define RTOS_MS_PER_TICK portTICK_PERIOD_MS
-  typedef struct {
-    TaskHandle_t rtos_handle;
-  } RTOS_TASK_HANDLE;
-
-  typedef SemaphoreHandle_t RTOS_MUTEX_HANDLE;
-  typedef EventGroupHandle_t RTOS_FLAG_HANDLE;
-  static inline void RTOS_INIT()
-  {
-  }
-
-  static inline void RTOS_WAIT_MS(uint32_t x)
-  {
-    vTaskDelay(x * portTICK_PERIOD_MS);
-  }
-
-  static inline void RTOS_WAIT_TICKS(uint32_t x)
-  {
-    vTaskDelay(x);
-  }
-#ifndef ARDUINO_ADAFRUIT_FEATHER_ESP32_V2
-  static inline void RTOS_START()
-  {
-    vTaskStartScheduler();
-  }
-
-  #define RTOS_CREATE_TASK(taskId, task, name, stackStruct, stackSize, priority)   \
-        xTaskCreate(task, name, stackSize, NULL, priority, &taskId.rtos_handle)
-  #define RTOS_CREATE_TASK_EX(taskId, task, name, stackStruct, stackSize, priority, core)   \
-        xTaskCreate(task, name, stackSize, NULL, priority, &taskId.rtos_handle)
-#else
-  static inline void RTOS_START() {}
-
-  #define RTOS_CREATE_TASK(taskId, task, name, stackStruct, stackSize, priority)   \
-        xTaskCreatePinnedToCore(task, name, stackSize, NULL, priority, &taskId.rtos_handle, 1)
-  #define RTOS_CREATE_TASK_EX(taskId, task, name, stackStruct, stackSize, priority, core)   \
-        xTaskCreatePinnedToCore(task, name, stackSize, NULL, priority, &taskId.rtos_handle, core)
-#endif
-  #define RTOS_DEL_TASK(taskId) vTaskDelete(taskId)
-
-#ifdef __cplusplus
-  static inline void RTOS_CREATE_MUTEX(RTOS_MUTEX_HANDLE &mutex)
-  {
-    mutex = xSemaphoreCreateRecursiveMutex();
-  }
-
-  static inline void RTOS_LOCK_MUTEX(RTOS_MUTEX_HANDLE &mutex)
-  {
-    xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
-  }
-
-  static inline void RTOS_UNLOCK_MUTEX(RTOS_MUTEX_HANDLE &mutex)
-  {
-    xSemaphoreGiveRecursive(mutex);
-  }
-#endif  // __cplusplus
-
-  #define RTOS_CREATE_FLAG(flag)        flag = xEventGroupCreate()
-  #define RTOS_SET_FLAG(flag)           (void)xEventGroupSetBits(flag, 0x01)
-  #define RTOS_CLEAR_FLAG(flag)         (void)xEventGroupClearBits(flag, 0x01)
-  #define RTOS_WAIT_FLAG(flag,timeout)  ((xEventGroupWaitBits(flag,0x01,pdTRUE,pdFALSE,timeout) & 0x01) == 0)
-
-  static inline void RTOS_ISR_SET_FLAG(RTOS_FLAG_HANDLE flag)
-  {
-    BaseType_t xResult;
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    xResult = xEventGroupSetBitsFromISR(flag, 0x01, &xHigherPriorityTaskWoken);
-    if( xResult != pdFAIL ) {
-      /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context
-      switch should be requested.  The macro used is port specific and will
-      be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() - refer to
-      the documentation page for the port being used. */
-      portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-    }
-  }
-
-  static inline uint32_t RTOS_GET_TIME(void)
-  {
-    return (uint32_t)xTaskGetTickCount();
-  }
-
-  static inline uint32_t RTOS_GET_MS(void)
-  {
-    return (RTOS_GET_TIME() * RTOS_MS_PER_TICK);
-  }
-
-#ifdef __cplusplus
-  template<int SIZE>
-  class TaskStack
-  {
-    public:
-      TaskStack()
-      {
-      }
-
-      void paint()
-      {
-      }
-
-      uint32_t size()
-      {
-        return SIZE * 4;
-      }
-
-      uint32_t available()
-      {
-        return SIZE;
-      }
-
-      StackType_t stack[1]; // just to make compiler happy
-  };
-#endif // __cplusplus
-  #define RTOS_DEFINE_STACK(name, size) TaskStack<size> __ALIGNED(8) name
-
-  #define TASK_FUNCTION(task)           void task(void * pdata)
-  #define TASK_RETURN()                 return
-#elif defined(FREE_RTOS) // This is the edgeTX default FreeRTOS
+#elif defined(FREE_RTOS)
 #ifdef __cplusplus
   extern "C" {
 #endif
@@ -284,7 +166,9 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
   
   static inline void RTOS_START()
   {
+#ifndef ARDUINO_ADAFRUIT_FEATHER_ESP32_V2  // ESP-IDF start the scheduler before starting EdgeTX
     vTaskStartScheduler();
+#endif
   }
 
   static inline void RTOS_WAIT_MS(uint32_t x)
@@ -316,7 +200,7 @@ inline void RTOS_CREATE_TASK(pthread_t &taskId, void * (*task)(void *), const ch
 #else
     h->rtos_handle = xTaskCreateStaticPinnedToCore(
         pxTaskCode, name, ulStackDepth, 0, uxPriority,
-        puxStackBuffer, &h->task_struct, 0);
+        puxStackBuffer, &h->task_struct, 1);
 #endif
   }
 

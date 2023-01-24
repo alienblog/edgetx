@@ -78,7 +78,6 @@ void loop() {
   //display.display();
 }
 
-extern RTOS_MUTEX_HANDLE spiMutex;
 lv_color_t* lcdbuf;
 void boardInit()
 {
@@ -86,7 +85,6 @@ void boardInit()
   disableCore1WDT();
 
   lcdbuf = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t) * 2, MALLOC_CAP_DMA);
-RTOS_CREATE_MUTEX(spiMutex);
 
   Wire.setPins(I2C_SDA, I2C_SCL);
 

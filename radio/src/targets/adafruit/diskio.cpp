@@ -158,10 +158,12 @@ void sdMount()
   }
 }
 
-// TODO shouldn't be there!
+static RTOS_MUTEX_HANDLE ioMutex;
+
 void sdInit(void)
 {
   if (!card_present) {
+    RTOS_CREATE_MUTEX(ioMutex);
     dev_config.host_id = (spi_host_device_t)config.slot;
     dev_config.gpio_cs = (gpio_num_t)SDCARD_CS_GPIO;
     sdspi_host_init();
@@ -197,4 +199,29 @@ uint32_t sdGetSpeed()
 {
   TRACE("+++++%s", __FUNCTION__);
   return 330000;
+}
+
+uint32_t ioMutexReq = 0, ioMutexRel = 0;
+int ff_cre_syncobj (BYTE vol, FF_SYNC_t *mutex)
+{
+  *mutex = ioMutex;
+  return 1;
+}
+
+int ff_req_grant (FF_SYNC_t mutex)
+{
+  ioMutexReq += 1;
+  RTOS_LOCK_MUTEX(mutex);
+  return 1;
+}
+
+void ff_rel_grant (FF_SYNC_t mutex)
+{
+  ioMutexRel += 1;
+  RTOS_UNLOCK_MUTEX(mutex);
+}
+
+int ff_del_syncobj (FF_SYNC_t mutex)
+{
+  return 1;
 }
