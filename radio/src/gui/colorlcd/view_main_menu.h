@@ -31,7 +31,7 @@ class ViewMainMenu : public Window
   void onCancel() override;
   void paint(BitmapBuffer* dc) override;
   void deleteLater(bool detach = true, bool trash = true) override;
-
+  void onClicked() override;
 #if defined(HARDWARE_TOUCH)
   bool onTouchStart(coord_t /*x*/, coord_t /*y*/) override { return true; }
   bool onTouchEnd(coord_t x, coord_t y) override

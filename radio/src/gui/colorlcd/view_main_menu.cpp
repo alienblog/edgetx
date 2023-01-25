@@ -120,6 +120,10 @@ ViewMainMenu::ViewMainMenu(Window* parent) :
 
 uint16_t* lcdGetBackupBuffer();
 
+void ViewMainMenu::onClicked() {
+  onCancel();
+}
+
 void ViewMainMenu::paint(BitmapBuffer* dc)
 {
   rect_t zone = carouselRect;
