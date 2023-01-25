@@ -83,8 +83,9 @@ void boardInit()
 {
   disableCore0WDT();
   disableCore1WDT();
-
+#if !defined(CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488)
   lcdbuf = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t) * 2, MALLOC_CAP_DMA);
+#endif
 
   Wire.setPins(I2C_SDA, I2C_SCL);
 

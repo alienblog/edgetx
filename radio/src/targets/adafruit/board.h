@@ -284,17 +284,18 @@ void check_telemetry_exti();
 #if defined(ARDUINO_ADAFRUIT_FEATHER_ESP32_V2)
 /*
 From Kconfig
-  MOSI 32
+  MOSI 12
   MISO 25
-  SCLK 27
-  LCD CS 12
-  LCD DC 4
-  TOUCH CS 13
+  SCLK 4
+  LCD CS 27
+  LCD DC 32
+  TOUCH CS 15
+  TOUCH IRQ 33
   
 From top CMakeLists
   INTMOD RX/TX 36/26
 */
-#define BACKLITE_PIN 5
+#define BACKLITE_PIN 0
 #define RMT_TX_PIN 18
 #define TRAINER_IN_GPIO 35
 #define FLYSKY_UART_RX_PIN 39
@@ -302,10 +303,10 @@ From top CMakeLists
 #define I2C_SCL 21
 #define I2C_SDA 22
 
-//#define SDSPI_CLK 14
-//#define SDSPI_MOSI 13
-//#define SDSPI_MISO 36
-#define SDCARD_CS_GPIO 0
+#define SDSPI_CLK 14
+#define SDSPI_MOSI 5
+#define SDSPI_MISO 34
+#define SDCARD_CS_GPIO 13
 
 #else
 #endif

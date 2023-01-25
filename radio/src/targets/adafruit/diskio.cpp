@@ -163,8 +163,19 @@ static RTOS_MUTEX_HANDLE ioMutex;
 void sdInit(void)
 {
   if (!card_present) {
-    RTOS_CREATE_MUTEX(ioMutex);
+    spi_bus_config_t bus_config = {
+        .mosi_io_num = SDSPI_MOSI,
+        .miso_io_num = SDSPI_MISO,
+        .sclk_io_num = SDSPI_CLK,
+        .quadwp_io_num = -1,
+        .quadhd_io_num = -1,
+    };
+    config.slot = VSPI_HOST;
     dev_config.host_id = (spi_host_device_t)config.slot;
+    spi_bus_initialize(dev_config.host_id, &bus_config, SPI_DMA_CH_AUTO);
+
+    RTOS_CREATE_MUTEX(ioMutex);
+
     dev_config.gpio_cs = (gpio_num_t)SDCARD_CS_GPIO;
     sdspi_host_init();
     sdspi_host_init_device(&dev_config, &handle);
