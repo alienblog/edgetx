@@ -119,6 +119,10 @@ TASK_FUNCTION(mixerTask)
   mixerSchedulerInit();
   mixerSchedulerStart();
 
+#if defined(PCB_ARDUINO)
+  startPulses();
+#endif
+
   while (true) {
     int timeout = 0;
     for (; timeout < MIXER_MAX_PERIOD; timeout += MIXER_FREQUENT_ACTIONS_PERIOD) {

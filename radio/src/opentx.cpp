@@ -1824,9 +1824,9 @@ void opentxInit()
 #endif
 
   resetBacklightTimeout();
-
+#if !defined(PCB_ARDUINO)
   startPulses();
-
+#endif
   WDG_ENABLE(WDG_DURATION);
 }
 
