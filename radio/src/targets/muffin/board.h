@@ -286,6 +286,7 @@ From Kconfig
 #define TRAINER_IN_GPIO 5 // todo
 #define FLYSKY_UART_RX_PIN 6 // todo
 
+#define INTMOD_UART_PORT UART_NUM_2
 #define INTMOD_RX_PIN 2 // todo
 #define INTMOD_TX_PIN 1 // todo
 
@@ -588,7 +589,7 @@ extern uint16_t adcValues[NUM_ANALOGS];
 
 #if defined(PCBXLITE)
   #define BATT_SCALE                    131
-#elif defined(PCB_WROVER) || defined(PCBX7)
+#elif defined(PCB_MUFFIN) || defined(PCBX7)
   #define BATT_SCALE                    123
 #elif defined(PCBX9LITE)
   #define BATT_SCALE                    117
@@ -710,7 +711,7 @@ void telemetryPortInvertedInit(uint32_t baudrate);
 // PCBREV driver
 #if defined(PCBX7ACCESS)
   #define HAS_SPORT_UPDATE_CONNECTOR()  true
-#elif defined(PCB_WROVER) || defined(PCBX7)
+#elif defined(PCB_MUFFIN) || defined(PCBX7)
   #define IS_PCBREV_40()                (hardwareOptions.pcbrev == PCBREV_X7_40)
   #define HAS_SPORT_UPDATE_CONNECTOR()  IS_PCBREV_40()
 #elif defined(SPORT_UPDATE_PWR_GPIO)

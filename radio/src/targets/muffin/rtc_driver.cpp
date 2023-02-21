@@ -19,13 +19,13 @@
  */
 
 #include "opentx.h"
-#include "Arduino.h"
-#include "RTClib.h"
+//#include "RTClib.h"
 
-RTC_DS3231 rtc;
+//RTC_DS3231 rtc;
 
 void rtcSetTime(const struct gtm * t)
 {
+#ifndef DISABLE_I2C_DEVS
     DateTime now = DateTime(t->tm_year + TM_YEAR_BASE, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
     Serial.print("rtcSetTime ");
     Serial.print(now.year(), DEC);
@@ -41,10 +41,12 @@ void rtcSetTime(const struct gtm * t)
     Serial.print(now.second(), DEC);
     Serial.println(); 
     rtc.adjust(now);
+#endif
 }
 
 void rtcGetTime(struct gtm * t)
 {
+#ifndef DISABLE_I2C_DEVS
     DateTime now = rtc.now();
     Serial.print("rtcGetTime ");
     Serial.print(now.year(), DEC);
@@ -65,12 +67,15 @@ void rtcGetTime(struct gtm * t)
     t->tm_hour = now.hour();
     t->tm_min = now.minute();
     t->tm_sec = now.second();
+#endif
 }
 
 void rtcInit()
 {
+#ifndef DISABLE_I2C_DEVS
     rtc.begin();
     struct gtm utm;
     rtcGetTime(&utm);
     g_rtcTime = gmktime(&utm);
+#endif
 }

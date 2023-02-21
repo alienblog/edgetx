@@ -19,7 +19,6 @@
  */
 
 #include "opentx.h"
-#include "Arduino.h"
 #include <driver/i2s.h>
 
 #define ENABLE_SOUND
@@ -83,7 +82,7 @@ void audioConsumeCurrentBuffer() {
   }
 
   while (currentBuffer && currentSize) {
-    uint32_t written = 0U;
+    size_t written = 0U;
 #ifdef ENABLE_SOUND
     i2s_write(snd_port, currentBuffer, 4, &written, 100);
 #else

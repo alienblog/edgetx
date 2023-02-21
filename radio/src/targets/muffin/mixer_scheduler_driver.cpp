@@ -20,16 +20,16 @@
 
 #include "opentx.h"
 #include "mixer_scheduler.h"
-#include "Arduino.h"
 #include "FreeRTOS_entry.h"
 
-static hw_timer_t *mixer_timer = NULL;
+//static hw_timer_t *mixer_timer = NULL;
 
 static void IRAM_ATTR interrupt_mixer() {
+#if 0
   timerAlarmDisable(mixer_timer);
   size_t usec = 2 * getMixerSchedulerPeriod() - 1;
   timerAlarmWrite(mixer_timer, usec, true);
-
+#endif
   mixerSchedulerISRTrigger();
 }
 
@@ -37,29 +37,31 @@ static void IRAM_ATTR interrupt_mixer() {
 void mixerSchedulerStart()
 {
   size_t usec = 2 * getMixerSchedulerPeriod() - 1;
+#if 0
   mixer_timer = timerBegin(2, 80, true);
   timerAttachInterrupt(mixer_timer, &interrupt_mixer, true);
   timerAlarmWrite(mixer_timer, usec, true);
+#endif
 }
 
 void mixerSchedulerStop()
 {
-  timerAlarmDisable(mixer_timer);
+  //timerAlarmDisable(mixer_timer);
 }
 
 void mixerSchedulerResetTimer()
 {
-  timerAlarmDisable(mixer_timer);
-  timerWrite(mixer_timer, 0);
-  timerAlarmEnable(mixer_timer);
+  //timerAlarmDisable(mixer_timer);
+  //timerWrite(mixer_timer, 0);
+  //timerAlarmEnable(mixer_timer);
 }
 
 void mixerSchedulerEnableTrigger()
 {
-  timerAlarmEnable(mixer_timer);
+  //timerAlarmEnable(mixer_timer);
 }
 
 void mixerSchedulerDisableTrigger()
 {
-  timerAlarmDisable(mixer_timer);
+  //timerAlarmDisable(mixer_timer);
 }

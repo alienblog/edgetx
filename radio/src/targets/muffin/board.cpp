@@ -19,8 +19,6 @@
  */
 
 #include "opentx.h"
-#include "Arduino.h"
-#include "Bledevice.h"
 /* Littlevgl specific */
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
@@ -30,12 +28,8 @@
 
 #include "lvgl_helpers.h"
 
-#include "Wire.h"
-
 extern void adruino_adc_init(void);
 extern void flysky_hall_stick_init();
-
-HardwareOptions hardwareOptions;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -47,7 +41,7 @@ extern "C" {
 }
 #endif
 
-//HardwareOptions hardwareOptions;
+HardwareOptions hardwareOptions;
 
 void watchdogInit(unsigned int duration)
 {
@@ -79,24 +73,17 @@ lv_color_t* lcdbuf;
 extern lv_disp_drv_t disp_drv;
 void boardInit()
 {
-  initArduino();
+  // TODO BLEDevice::init("");
 
-  BLEDevice::init("");
-
-  disableCore0WDT();
-  disableCore1WDT();
+  //disableCore0WDT();
+  //disableCore1WDT();
 
   audioInit();
 #if !defined(CONFIG_LV_TFT_DISPLAY_CONTROLLER_ILI9488)
   lcdbuf = (lv_color_t*)heap_caps_malloc(DISP_BUF_SIZE * sizeof(lv_color_t) * 2, MALLOC_CAP_DMA);
 #endif
 
-  Wire.setPins(I2C_SDA, I2C_SCL);
-
-#if defined(DEBUG)
-  serialSetMode(SP_AUX1, UART_MODE_DEBUG);
-  serialInit(SP_AUX1, UART_MODE_DEBUG);
-#endif
+  //Wire.setPins(I2C_SDA, I2C_SCL);
 
   backlightInit();
 

@@ -19,9 +19,8 @@
  */
 
 #include "opentx.h"
-#include "Arduino.h"
 #include "FreeRTOS_entry.h"
-#include <Adafruit_MCP23X17.h>
+//#include <Adafruit_MCP23X17.h>
 
 #define MCP1_SWITCHES_MASK 0xF8
 #define MCP1_TRIM_MASK 0xFF

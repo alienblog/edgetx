@@ -14,9 +14,6 @@
  */ 
  
 #include "opentx.h"
-#include "Arduino.h"
-#include "BLEDevice.h"
-//#include "BLEScan.h"
 #include "pulses_esp32.h"
 
 #define STICK_MAX_VALUE (1024)
@@ -24,6 +21,7 @@
 #define THR_STICK_CHANNEL 2  // channel 3
 #define RDR_STICK_CHANNEL 3  // channel 4
 
+#if 0
 // The remote service we wish to connect to.
 static BLEUUID PWUserviceUUID("86C3810E-F171-40D9-A117-26B300768CD6");
 static BLEUUID BATserviceUUID("180F");
@@ -132,9 +130,11 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     } // Found our server
   } // onResult
 }; // MyAdvertisedDeviceCallbacks
+#endif
 
 static void* BtPowerUPInit(uint8_t module)
 {
+#if 0
   (void)module;
   //BLEDevice::init("");
 
@@ -147,16 +147,19 @@ static void* BtPowerUPInit(uint8_t module)
   pBLEScan->setWindow(449);
   pBLEScan->setActiveScan(true);
   pBLEScan->start(0, scanCompleteCB, false);
+#endif
   return 0;
 }
 
 static void BtPowerUPDeInit(void* context)
 {
+#if 0
   BLEDevice::getScan()->stop();
   if (connected) {
     pThrottle->writeValue(0);
     pRudder->writeValue(0);
   }
+#endif
 }
 
 static void BtPowerUPSetupPulses(void* context, int16_t* channels, uint8_t nChannels)
@@ -166,6 +169,7 @@ static void BtPowerUPSetupPulses(void* context, int16_t* channels, uint8_t nChan
 
 static void BtPowerUPSendPulses(void* context)
 {
+#if 0
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
   // connected we set the connected flag to be true.
@@ -227,6 +231,7 @@ static void BtPowerUPSendPulses(void* context)
     BLEDevice::getScan()->start(0, scanCompleteCB, false);
     doScan = false;
   }
+#endif
 }
 
 static int BtPowerUPGetByte(void* context, uint8_t* data)

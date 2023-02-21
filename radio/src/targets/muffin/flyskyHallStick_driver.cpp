@@ -21,12 +21,11 @@
 
 #include "opentx.h"
 #include "flyskyHallStick_driver.h"
-#include "Arduino.h"
 #include "esp32_rmt_pulse.h"
 
 unsigned char HallCmd[264];
 
-static void flysky_hall_stick_decode_cb(rmt_ctx_t *ctx, uint32_t *rxdata, size_t rxdata_len);
+static void flysky_hall_stick_decode_cb(rmt_ctx_t *ctx, rmt_rx_done_event_data_t *rxdata);
 
 STRUCT_HALL HallProtocol = { 0 };
 STRUCT_HALL HallProtocolTx = { 0 };
@@ -127,7 +126,7 @@ void flysky_hall_stick_init()
    * 1. for fun
    * 2. don't need to worry about finding a pin for TX which is not used.
    */
-  esp32_rmt_rx_init(FLYSKY_UART_RX_PIN, RMT_MEM_128,
+  esp32_rmt_rx_init(FLYSKY_UART_RX_PIN, 128,
     25,
     flysky_hall_stick_decode_cb,
     70,  // 14bytes of 8n1, total maximum of 70 pulses (each byte max 5 low/high pair)
@@ -237,16 +236,14 @@ void flysky_hall_process_byte(uint8_t byte)
   }
 }
 
-static void flysky_hall_stick_decode_cb(rmt_ctx_t *ctx, uint32_t *rxdata, size_t rxdata_len)
+static void flysky_hall_stick_decode_cb(rmt_ctx_t *ctx, rmt_rx_done_event_data_t *rxdata)
 {
   int b = -1;
 
   uint16_t data = 0;
-  for (size_t i = 0; i < rxdata_len; i++) {
-    rmt_data_t d;
-    d.val = rxdata[i];
-    uint32_t low = d.duration0;
-    uint32_t high = d.duration1;
+  for (size_t i = 0; i < rxdata->num_symbols; i++) {
+    uint32_t low = rxdata->received_symbols[i].duration0;
+    uint32_t high = rxdata->received_symbols[i].duration1;
 
     uint32_t low_bits = low / 43;
     uint32_t high_bits = high / 43;

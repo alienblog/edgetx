@@ -19,11 +19,10 @@
  */
 
 #include "opentx.h"
-#include "Arduino.h"
 #include "FreeRTOS_entry.h"
 
-static hw_timer_t *MyTim5ms = NULL;
-static hw_timer_t *MyTim2Mhz = NULL;
+//static hw_timer_t *MyTim5ms = NULL;
+//static hw_timer_t *MyTim2Mhz = NULL;
 static SemaphoreHandle_t sem5ms;
 
 static void IRAM_ATTR interrupt5ms()
@@ -54,16 +53,20 @@ static void task5ms(void * pdata) {
 // Start TIMER at 2000000Hz
 void init2MhzTimer()
 {
+#if 0
   MyTim2Mhz = timerBegin(1, 40, true); // 2MHz
   timerStart(MyTim2Mhz);
+#endif
 }
 
 uint16_t getTmr2MHz() {
-  return timerRead(MyTim2Mhz);
+  return 0;
+  //return timerRead(MyTim2Mhz);
 }
 
 tmr10ms_t get_tmr10ms() {
-  return (tmr10ms_t)(timerRead(MyTim2Mhz) / 20000); // 2MHz => 100Hz
+  return 0;
+  //return (tmr10ms_t)(timerRead(MyTim2Mhz) / 20000); // 2MHz => 100Hz
 }
 
 #define TIM5MS_STACK_SIZE (1024 * 2)
@@ -75,15 +78,17 @@ void init5msTimer()
   sem5ms = xSemaphoreCreateBinary();
 
   RTOS_CREATE_TASK_EX(taskId5ms,task5ms,"5ms timer",task5ms_stack,TIM5MS_STACK_SIZE,5,TMR_5MS_CORE);  // TODO-feather priority
+#if 0
   MyTim5ms = timerBegin(0, 80, true);
   timerAttachInterrupt(MyTim5ms, &interrupt5ms, true);
   timerAlarmWrite(MyTim5ms, 5000, true); // 200Hz
   timerAlarmEnable(MyTim5ms);
+#endif
 }
 
 void stop5msTimer()
 {
-  timerAlarmDisable(MyTim5ms);
+  //timerAlarmDisable(MyTim5ms);
 }
 
 uint32_t ticksNow() {

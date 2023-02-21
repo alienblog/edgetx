@@ -19,12 +19,11 @@
  */
 
 #include "opentx.h"
-#include "Arduino.h"
 #include "hal/adc_driver.h"
-#include "Adafruit_ADS1X15.h"
-
+#if 0
 static uint16_t mux[] = {ADS1X15_REG_CONFIG_MUX_SINGLE_0, ADS1X15_REG_CONFIG_MUX_SINGLE_1,
     ADS1X15_REG_CONFIG_MUX_SINGLE_2, ADS1X15_REG_CONFIG_MUX_SINGLE_3};
+#endif
 static uint8_t currentAdcPin = 0;
 
 #ifndef DISABLE_I2C_DEVS
