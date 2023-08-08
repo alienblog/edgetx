@@ -298,7 +298,7 @@ From Kconfig
 #define INTMOD_RX_PIN 2
 #define INTMOD_TX_PIN 1
 
-#define I2C_MASTER_NUM 0
+#define I2C_MASTER_NUM I2C_NUM_0  // 0
 
 #define SD_DEDICATED_SPI
 #ifdef SD_DEDICATED_SPI
@@ -315,20 +315,19 @@ From Kconfig
 
 // Keys driver
 // on Adafruit_MCP23X17
-enum EnumKeys
-{
+enum EnumKeys {
   KEY_ENTER,
   KEY_MENU = KEY_ENTER,
   KEY_EXIT,
-  KEY_UP,   // must match the order of the button above
+  KEY_UP,  // must match the order of the button above
   KEY_PLUS = KEY_UP,
   KEY_DOWN,
   KEY_MINUS = KEY_DOWN,
-  BUTTONS_ON_GPIOA = KEY_DOWN,
+  // BUTTONS_ON_GPIOA = KEY_DOWN,
   KEY_RIGHT,
   KEY_LEFT,
   KEY_RADIO,
-  BUTTONS_ON_MCP1 = KEY_RADIO,
+  BUTTONS_ON_MCP0 = KEY_RADIO,
   KEY_BIND,
   KEY_TELEM,
 
