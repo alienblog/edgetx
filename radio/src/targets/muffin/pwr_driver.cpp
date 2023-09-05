@@ -19,22 +19,14 @@
  */
 
 #include "opentx.h"
+#include "board.h"
 
-void pwrInit()
-{
-}
+void pwrInit() {}
 
-void pwrOn()
-{
-}
+void pwrOn() {}
 
 #if defined(PWR_EXTRA_SWITCH_GPIO)
-bool pwrForcePressed()
-{
-  return false;
-}
+bool pwrForcePressed() { return false; }
 #endif
 
-void pwrResetHandler()
-{
-}
+void pwrResetHandler() {}

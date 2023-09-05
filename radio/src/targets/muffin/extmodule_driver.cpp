@@ -20,11 +20,10 @@
  */
 
 #include "opentx.h"
+#include "extmodule_serial_driver.h"
+#include "driver/uart.h"
 
-void extmoduleStop()
-{
-  EXTERNAL_MODULE_OFF();
-}
+void extmoduleStop() { EXTERNAL_MODULE_OFF(); }
 
 static void config_ppm_output(uint16_t ppm_delay, bool polarity)
 {
@@ -85,13 +84,24 @@ void extmoduleSendNextFramePxx1(const void* pulses, uint16_t length)
 void extmoduleSerialStart()
 {
   EXTERNAL_MODULE_ON();
+
+  uart_config_t uart_config = {
+      .baud_rate = 115200,
+      .data_bits = UART_DATA_8_BITS,
+      .parity = UART_PARITY_DISABLE,
+      .stop_bits = UART_STOP_BITS_1,
+      .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+      .source_clk = UART_SCLK_DEFAULT,
+  };
+
 #if 0
   stm32_pulse_init(&extmoduleTimer);
   stm32_pulse_config_output(&extmoduleTimer, true, LL_TIM_OCMODE_TOGGLE, 0);
 #endif
 }
 
-void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length, bool polarity)
+void extmoduleSendNextFrameSoftSerial(const void* pulses, uint16_t length,
+                                      bool polarity)
 {
 #if 0
   if (!stm32_pulse_if_not_running_disable(&extmoduleTimer))

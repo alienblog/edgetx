@@ -2,7 +2,7 @@
  * Copyright (C) OpenTX
  *
  * Based on code named
- *   th9x - http://code.google.com/p/th9x 
+ *   th9x - http://code.google.com/p/th9x
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
  *
@@ -19,10 +19,16 @@
  */
 
 #include "opentx.h"
+#include "i2c_driver.h"
+#include "mcp23017.h"
+
+#define LED_R_BIT 0x08
+#define LED_G_BIT 0x10
+#define LED_B_BIT 0x04
 
 void ledInit()
 {
-#if 0 // TODO-feather
+#if 0  // TODO-feather
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
@@ -57,7 +63,9 @@ void ledInit()
 }
 
 #if defined(FUNCTION_SWITCHES)
-constexpr uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2, FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4, FSLED_GPIO_PIN_5, FSLED_GPIO_PIN_6};
+constexpr uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
+                               FSLED_GPIO_PIN_3, FSLED_GPIO_PIN_4,
+                               FSLED_GPIO_PIN_5, FSLED_GPIO_PIN_6};
 
 void fsLedOff(uint8_t index)
 {
@@ -72,24 +80,22 @@ void fsLedOn(uint8_t index)
 
 void ledOff()
 {
-#if 0 // TODO-feather
-#if defined(LED_RED_GPIO)
-  GPIO_LED_GPIO_OFF(LED_RED_GPIO, LED_RED_GPIO_PIN);
-#endif
-#if defined(LED_BLUE_GPIO)
-  GPIO_LED_GPIO_OFF(LED_BLUE_GPIO, LED_BLUE_GPIO_PIN);
-#endif
-#if defined(LED_GREEN_GPIO)
-  GPIO_LED_GPIO_OFF(LED_GREEN_GPIO, LED_GREEN_GPIO_PIN);
-#endif
-#endif
+  uint8_t gpioB[1] = {0};
+  i2c_register_read(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 1), gpioB,
+                    sizeof(gpioB));
+  i2c_register_write_byte(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 1),
+                          gpioB[0] | LED_R_BIT | LED_G_BIT | LED_B_BIT);
 }
 
 void ledRed()
 {
   ledOff();
 #if defined(LED_RED_GPIO)
-  // #if 0 // TODO-feather GPIO_LED_GPIO_ON(LED_RED_GPIO, LED_RED_GPIO_PIN);
+  uint8_t gpioB[1] = {0};
+  i2c_register_read(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 1), gpioB,
+                    sizeof(gpioB));
+  i2c_register_write_byte(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 1),
+                          gpioB[0] & ~LED_R_BIT);
 #endif
 }
 
@@ -97,7 +103,11 @@ void ledGreen()
 {
   ledOff();
 #if defined(LED_GREEN_GPIO)
-  //#if 0 // TODO-feather GPIO_LED_GPIO_ON(LED_GREEN_GPIO, LED_GREEN_GPIO_PIN);
+  uint8_t gpioB[1] = {0};
+  i2c_register_read(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 1), gpioB,
+                    sizeof(gpioB));
+  i2c_register_write_byte(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 1),
+                          gpioB[0] & ~LED_G_BIT);
 #endif
 }
 
@@ -105,6 +115,10 @@ void ledBlue()
 {
   ledOff();
 #if defined(LED_BLUE_GPIO)
-  //#if 0 // TODO-feather GPIO_LED_GPIO_ON(LED_BLUE_GPIO, LED_BLUE_GPIO_PIN);
+  uint8_t gpioB[1] = {0};
+  i2c_register_read(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 1), gpioB,
+                    sizeof(gpioB));
+  i2c_register_write_byte(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 1),
+                          gpioB[0] & ~LED_B_BIT);
 #endif
 }
