@@ -305,7 +305,7 @@ From Kconfig
 #define EXTMOD_RX_PIN 44
 #define EXTMOD_TX_PIN 43
 
-#define I2C_MASTER_NUM 0
+#define I2C_MASTER_NUM I2C_NUM_0
 
 #define SD_DEDICATED_SPI
 #ifdef SD_DEDICATED_SPI
