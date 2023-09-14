@@ -169,8 +169,8 @@ static void task_adc(void *pdata)
                 average[index] = (average[index] * AVERAGE_POINTS + data) /
                                  (AVERAGE_POINTS + 1);
                 adcValues[4 + index] = average[index];
-                ESP_LOGI(TAG, "ch %d raw value = %ld", 4 + index,
-                         average[index]);
+                // ESP_LOGI(TAG, "ch %d raw value = %ld", 4 + index,
+                //          average[index]);
               }
             }
           } else {

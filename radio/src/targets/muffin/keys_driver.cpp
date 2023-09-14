@@ -59,15 +59,15 @@ KEY_RADIO	KEY_TELEM
 
 static uint8_t mcp1_trim = 0U;
 // MCP1 GPIOA
-#define TRM_LH_DWN_MASK 0x01
-#define TRM_LH_UP_MASK 0x02
-#define TRM_LV_DWN_MASK 0x04
-#define TRM_LV_UP_MASK 0x08
+#define TRM_LV_DWN_MASK 0x01
+#define TRM_LV_UP_MASK 0x02
+#define TRM_LH_DWN_MASK 0x04
+#define TRM_LH_UP_MASK 0x08
 // MCP0 GPIOA
-#define TRM_RV_DWN_MASK 0x10
-#define TRM_RV_UP_MASK 0x20
-#define TRM_RH_DWN_MASK 0x40
-#define TRM_RH_UP_MASK 0x80
+#define TRM_RH_DWN_MASK 0x10
+#define TRM_RH_UP_MASK 0x20
+#define TRM_RV_DWN_MASK 0x40
+#define TRM_RV_UP_MASK 0x80
 // ~0x02 thr trim down
 // ~0x01 thr trim up
 // ~0x08 ele trim down
@@ -184,6 +184,7 @@ static void process_pwr_btn_state(bool btn_down)
 uint32_t readKeys()
 {
   uint32_t result = 0;
+  mcp1_trim = 0;
 
   RTOS_LOCK_MUTEX(keyMutex);
   uint8_t mask = (1 << 7) - 1;
@@ -200,8 +201,6 @@ uint32_t readKeys()
     if (~gpioAB[0] & TRM_RV_UP_MASK) mcp1_trim |= 1 << (TRM_RV_UP - TRM_BASE);
     if (~gpioAB[0] & TRM_RH_DWN_MASK) mcp1_trim |= 1 << (TRM_RH_DWN - TRM_BASE);
     if (~gpioAB[0] & TRM_RH_UP_MASK) mcp1_trim |= 1 << (TRM_RH_UP - TRM_BASE);
-
-    process_pwr_btn_state(1 != (gpioAB[0] & PWR_BTN_BIT));
   }
   if (mcp1_exist) {
     i2c_register_read(MCP1_ADDR, MCP_REG_ADDR(MCP23XXX_GPIO, 0), gpioAB,
@@ -219,6 +218,7 @@ uint32_t readKeys()
     if (~gpioAB[0] & TRM_LV_UP_MASK) mcp1_trim |= 1 << (TRM_LV_UP - TRM_BASE);
     // result |= (((gpioAB[1] ^ MCP1_KEYS_MASK) & MCP1_KEYS_MASK) <<
     // (BUTTONS_ON_GPIOA + 1));
+    process_pwr_btn_state(1 != (gpioAB[0] & PWR_BTN_BIT));
   }
   RTOS_UNLOCK_MUTEX(keyMutex);
 
@@ -290,6 +290,7 @@ void keysInit()
   esp_err_t ret = 0;
   ret = i2c_register_write_byte(MCP0_ADDR, MCP_REG_ADDR(MCP23XXX_GPPU, 0),
                                 MCP0_A_INPUT_MASK);
+  ESP_LOGI("KEYS", "MCP0 ret %d", ret);
   if (0 == ret) {
     mcp0_exist = true;
     ret = i2c_register_write_byte(
@@ -308,6 +309,7 @@ void keysInit()
   // pull up
   ret = i2c_register_write_byte(MCP1_ADDR, MCP_REG_ADDR(MCP23XXX_GPPU, 0),
                                 MCP1_A_INPUT_MASK);
+  ESP_LOGI("KEYS", "MCP1 ret %d", ret);
   if (0 == ret) {
     mcp1_exist = true;
     ret = i2c_register_write_byte(
